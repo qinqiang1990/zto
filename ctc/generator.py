@@ -110,7 +110,7 @@ class gen_id_card(object):
         self.len = len(self.char_set)
 
         self.max_size = 11
-        self.ft = put_chinese_text('msyhbd.ttf')
+        self.ft = put_chinese_text('../data/font/msyhbd.ttf')
 
     # 随机生成字串，长度固定
     # 返回text,及对应的向量
