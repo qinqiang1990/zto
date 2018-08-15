@@ -21,10 +21,10 @@ def gen(batch_size=32, n_len=11):
     return x, y
 
 
-batch_x, batch_y = gen(200)
+batch_x, batch_y = gen(128*100)
 
 print(batch_x.shape)
 print(batch_y.shape)
 
-np.save("x_train.npy", batch_x)
-np.save("y_train.npy", batch_y)
+np.save("X_train.npy", batch_x)
+np.save("Y_train.npy", batch_y)

@@ -44,7 +44,7 @@ def build_network():
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
 
     basemodel = Model(inputs=input, outputs=y_pred)
-
+    
     labels = Input(name='the_labels', shape=[MAX_CAPTCHA], dtype='float32')
     input_length = Input(name='input_length', shape=[1], dtype='int64')
     label_length = Input(name='label_length', shape=[1], dtype='int64')
@@ -52,7 +52,7 @@ def build_network():
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input, labels, input_length, label_length], outputs=loss_out)
-
+    
     return model
 
 
@@ -75,20 +75,20 @@ def decode_model_output(output, blank=10):
 
 
 def test_model(model, X_test, Y_test):
-    print(X_test.shape)
-    print(Y_test.shape)
+    print("X_test:",X_test.shape)
+    print("Y_test:",Y_test.shape)
 
     y_pred = model.predict(X_test)
-
     shape = y_pred[:, :, :].shape
 
     ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
-    print(ctc_decode)
     out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
 
-    print(out - Y_test)
+    accur = np.sum(abs(out - Y_test),axis=1)
+    accur_score = len(accur==0)*1.0/len(accur)
+    print(accur_score)
 
-    print(decode_model_output(y_pred) - Y_test)
+#     print(decode_model_output(y_pred) - Y_test)
 
 
 if __name__ == '__main__':
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     epochs = 500
     batch_size = 128
     verbose = 2
-    test_size = 50
+    test_size = 128*10
 
     X_train = np.load("X_train.npy")
     Y_train = np.load("Y_train.npy")
@@ -107,12 +107,12 @@ if __name__ == '__main__':
     X_train = X_train[test_size:, :, :, :]
     Y_train = Y_train[test_size:, :]
 
-    input_length = np.ones([X_train.shape[0], 1]) * 32
+    print("X_train:",X_train.shape)
+    print("Y_train:",Y_train.shape)
+
+    input_length = np.ones([X_train.shape[0], 1]) * 18
     label_length = np.ones([X_train.shape[0], 1]) * MAX_CAPTCHA
-
-    print(X_train.shape)
-    print(Y_train.shape)
-
+    
     inputs = {'the_input': X_train,
               'the_labels': Y_train,
               'input_length': input_length,
