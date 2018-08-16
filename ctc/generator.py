@@ -158,7 +158,7 @@ if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
     image_data, label, vec = genObj.gen_image(text_size=20, gap=1)
 
-    cv2.imwrite("data/cut/_100.jpg", image_data)
+    cv2.imwrite("data/cut/_903.jpg", image_data)
     cv2.imshow('image', image_data)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
