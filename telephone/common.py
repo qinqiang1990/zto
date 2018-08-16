@@ -3,9 +3,12 @@ import cv2
 import numpy as np
 
 
-def resize_(img, shrink=0.3):
-    height, width = img.shape[:2]
-    size = (int(width * shrink), int(height * shrink))
+def resize_(img, shrink=0.3, width=None, height=None):
+    height_, width_ = img.shape[:2]
+    if shrink is not None:
+        size = (int(width_ * shrink), int(height_ * shrink))
+    if width is not None and height is not None:
+        size = (width, height)
     return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
 
