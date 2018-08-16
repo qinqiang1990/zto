@@ -111,9 +111,10 @@ class put_chinese_text(object):
 
 
 class gen_id_card(object):
-    def __init__(self, width=140, height=20):
-        self.width = width
+    def __init__(self, height=20, width=140):
+
         self.height = height
+        self.width = width
 
         # self.words = open('AllWords.txt', 'r').read().split(' ')
         self.number = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -123,7 +124,8 @@ class gen_id_card(object):
 
         self.max_size = 11
 
-        self.font = ['data/font/msyhbd.ttf', 'data/font/times.ttf']
+        # self.font = ['data/font/msyhbd.ttf', 'data/font/times.ttf']
+        self.font = ['data/font/simhei.ttf']
 
     # 随机生成字串，长度固定
     # 返回text,及对应的向量
@@ -139,26 +141,19 @@ class gen_id_card(object):
             vecs[i * self.len:(i + 1) * self.len] = np.copy(vec)
         return text, vecs
 
+    # https://blog.csdn.net/u012936765/article/details/53200918
     # 定义添加高斯噪声的函数
-    def addGaussianNoise(self, image, percetage):
-        pass
-        # https: // blog.csdn.net / u012936765 / article / details / 53200918
-        # sampleNo = 1000;
-        # # 一维正态分布
-        # # 下面三种方式是等效的
-        # mu = 3
-        # sigma = 0.1
-        # np.random.seed(0)
-        # s = np.random.normal(mu, sigma, sampleNo)
-        # PixcelMin = 0
-        # PixcelMax = 255
-        # G_Noiseimg = image
-        # for i in range(image.shape[0]):
-        #     for j in range(image.shape[1]):
-        #         temp = G_Noiseimg[i][j]
-        #         if temp > PixcelMin and temp < PixcelMax:
-        #             G_Noiseimg[i][j] = temp
-        # return G_Noiseimg
+    def addGaussianNoise(self, image, loc=30, scale=30):
+        PixcelMin = 0
+        PixcelMax = 255
+        h, w = image.shape
+        np.random.seed(1024)
+        G_Noiseimg = np.random.normal(loc=loc, scale=scale, size=h * w).reshape(h, w)
+        G_Noiseimg = G_Noiseimg + image
+
+        G_Noiseimg[G_Noiseimg > PixcelMax] = PixcelMax
+        G_Noiseimg[G_Noiseimg < PixcelMin] = PixcelMin
+        return G_Noiseimg.astype(np.uint8)
 
     # 定义添加椒盐噪声的函数
     def SaltAndPepper(self, src, percetage):
@@ -174,8 +169,7 @@ class gen_id_card(object):
         return SP_NoiseImg
 
     def noise(self, img):
-
-        # img = self.addGaussianNoise(img, 0.01)  # 添加10%的高斯噪声
+        img = self.addGaussianNoise(img, 50, 50)  # 高斯噪声
         img = self.SaltAndPepper(img, 0.2)  # 再添加10%的椒盐噪声
         return img
 
@@ -193,7 +187,7 @@ class gen_id_card(object):
             img = common.erode_(image[:, :, 0], ksize=(3, 3))
         if self.ft.ttf == "data/font/times.ttf":
             img = common.erode_(image[:, :, 0], ksize=(2, 2))
-        img = self.noise(img)
+        # img = self.noise(img)
         return img[:, :, np.newaxis], text, vec
 
     # 单字转向量
@@ -218,7 +212,7 @@ if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
     image_data, label, vec = genObj.gen_image(text_size=20)
 
-    cv2.imwrite("data/cut/_903.jpg", image_data)
+    cv2.imwrite("data/cut/_900.jpg", image_data)
     cv2.imshow('image', image_data)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
