@@ -21,7 +21,7 @@ def gen(batch_size=32, n_len=11):
     return x, y
 
 
-batch_x, batch_y = gen(128*100)
+batch_x, batch_y = gen(256*100)
 
 print(batch_x.shape)
 print(batch_y.shape)

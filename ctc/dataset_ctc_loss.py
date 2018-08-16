@@ -86,21 +86,23 @@ def test_model(model, X_test, Y_test):
 
     accur = np.sum(abs(out - Y_test),axis=1)
     accur_score = len(accur==0)*1.0/len(accur)
-    print(accur_score)
+    print("accur_score:",accur_score)
 
 #     print(decode_model_output(y_pred) - Y_test)
 
 
 if __name__ == '__main__':
-    weight_file = './ocr_ctc_weights.h5'
-    epochs = 500
-    batch_size = 128
-    verbose = 2
-    test_size = 128*10
-
+    
     X_train = np.load("X_train.npy")
     Y_train = np.load("Y_train.npy")
 
+    weight_file = './ocr_ctc_weights.h5'
+
+    epochs = 500
+    batch_size = 256
+    verbose = 2
+    test_size = int(X_train.shape[0]*0.1)
+    
     X_test = X_train[0:test_size, :, :, :]
     Y_test = Y_train[0:test_size, :]
 
