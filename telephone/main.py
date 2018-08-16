@@ -91,6 +91,7 @@ def main_(file_path="../data/img/11.jpg"):
     img = common.template(img, temp)
     cv2.imwrite("../data/result/5_match.jpg", img)
 
+    # 图像分段(分水岭算法)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 

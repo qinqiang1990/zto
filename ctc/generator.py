@@ -3,18 +3,25 @@
 身份证文字+数字生成类
 
 """
+import sys
+import os
+
 import numpy as np
 import freetype
 import copy
 import random
 import cv2
 
+sys.path.append(os.getcwd())
+from telephone import common
+
 
 class put_chinese_text(object):
     def __init__(self, ttf):
+        self.ttf = ttf
         self._face = freetype.Face(ttf)
 
-    def draw_text(self, image, pos, text, text_size, text_color, gap=1):
+    def draw_text(self, image, pos, text, text_size, text_color):
         '''
         draw chinese(or not) text with ttf
         :param image:     image(numpy.ndarray) to draw text
@@ -34,7 +41,7 @@ class put_chinese_text(object):
 
         if not isinstance(text, str):
             text = text.decode('utf-8')
-        img = self.draw_string(image, pos[0], pos[1] + ypos, text, text_color, gap)
+        img = self.draw_string(image, pos[0], pos[1] + ypos, text, text_color)
         return img
 
     def draw_string(self, img, x_pos, y_pos, text, color, gap=1):
@@ -46,6 +53,11 @@ class put_chinese_text(object):
         :param color: text color
         :return:      image
         '''
+
+        if self.ttf == "data/font/times.ttf":
+            gap = gap * 1.2
+        if self.ttf == "data/font/msyhbd.ttf":
+            gap = gap * 1
         prev_char = 0
         pen = freetype.Vector()
         pen.x = x_pos << 6  # div 64
@@ -110,7 +122,8 @@ class gen_id_card(object):
         self.len = len(self.char_set)
 
         self.max_size = 11
-        self.ft = put_chinese_text('data/font/msyhbd.ttf')
+
+        self.font = ['data/font/msyhbd.ttf', 'data/font/times.ttf']
 
     # 随机生成字串，长度固定
     # 返回text,及对应的向量
@@ -126,15 +139,62 @@ class gen_id_card(object):
             vecs[i * self.len:(i + 1) * self.len] = np.copy(vec)
         return text, vecs
 
+    # 定义添加高斯噪声的函数
+    def addGaussianNoise(self, image, percetage):
+        pass
+        # https: // blog.csdn.net / u012936765 / article / details / 53200918
+        # sampleNo = 1000;
+        # # 一维正态分布
+        # # 下面三种方式是等效的
+        # mu = 3
+        # sigma = 0.1
+        # np.random.seed(0)
+        # s = np.random.normal(mu, sigma, sampleNo)
+        # PixcelMin = 0
+        # PixcelMax = 255
+        # G_Noiseimg = image
+        # for i in range(image.shape[0]):
+        #     for j in range(image.shape[1]):
+        #         temp = G_Noiseimg[i][j]
+        #         if temp > PixcelMin and temp < PixcelMax:
+        #             G_Noiseimg[i][j] = temp
+        # return G_Noiseimg
+
+    # 定义添加椒盐噪声的函数
+    def SaltAndPepper(self, src, percetage):
+        SP_NoiseImg = src
+        SP_NoiseNum = int(percetage * src.shape[0] * src.shape[1])
+        for i in range(SP_NoiseNum):
+            randX = random.randint(0, src.shape[0] - 1)
+            randY = random.randint(0, src.shape[1] - 1)
+            if random.randint(0, 1) == 0:
+                SP_NoiseImg[randX, randY] = 0
+            else:
+                SP_NoiseImg[randX, randY] = 255
+        return SP_NoiseImg
+
+    def noise(self, img):
+
+        # img = self.addGaussianNoise(img, 0.01)  # 添加10%的高斯噪声
+        img = self.SaltAndPepper(img, 0.2)  # 再添加10%的椒盐噪声
+        return img
+
     # 根据生成的text，生成image,返回标签和图片元素数据
-    def gen_image(self, text_size=20, gap=1):
+    def gen_image(self, text_size=20):
+
+        self.ft = put_chinese_text(self.font[random.randint(0, len(self.font) - 1)])
         text, vec = self.random_text()
         img = np.zeros([self.height, self.width, 3])
         color_ = (255, 255, 255)  # Write
         pos = (2, -2)
-        image = self.ft.draw_text(img, pos, text, text_size, color_, gap)
+        image = self.ft.draw_text(img, pos, text, text_size, color_)
         # 仅返回单通道值，颜色对于汉字识别没有什么意义
-        return image[:, :, 0:1], text, vec
+        if self.ft.ttf == "data/font/msyhbd.ttf":
+            img = common.erode_(image[:, :, 0], ksize=(3, 3))
+        if self.ft.ttf == "data/font/times.ttf":
+            img = common.erode_(image[:, :, 0], ksize=(2, 2))
+        img = self.noise(img)
+        return img[:, :, np.newaxis], text, vec
 
     # 单字转向量
     def char2vec(self, c):
@@ -156,7 +216,7 @@ class gen_id_card(object):
 
 if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
-    image_data, label, vec = genObj.gen_image(text_size=20, gap=1)
+    image_data, label, vec = genObj.gen_image(text_size=20)
 
     cv2.imwrite("data/cut/_903.jpg", image_data)
     cv2.imshow('image', image_data)

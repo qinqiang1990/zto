@@ -20,10 +20,11 @@ def predict_model(model, input_):
 
 
 if __name__ == '__main__':
-    file_name = "data/cut/_901.jpg"
+    file_name = "data/cut/_6.jpg"
     img = cv2.imread(file_name)
     img = common.resize_(img, width=140, height=20)
     img = common.bgr2gray_(img)
+    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
 
     weight_file = 'ctc/ocr_ctc_weights.h5'
 

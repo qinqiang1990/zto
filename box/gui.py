@@ -55,14 +55,14 @@ def render(img):
     # cv2.imshow('image', img)
 
 
-def main(path='data/img', file_name='1.jpg', prefix='data/cut/_'):
+def main(path='data/min_img', file_name='1.jpg', prefix='data/cut/_'):
     global img, name
     global point1, point2, angle
 
     name = os.path.join(path, file_name)
     img = cv2.imread(name)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
+    # _, img = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
 
     cv2.namedWindow('image')
     cv2.setMouseCallback('image', on_mouse)
@@ -133,4 +133,4 @@ def main(path='data/img', file_name='1.jpg', prefix='data/cut/_'):
 # 黑:0
 # 白:255
 if __name__ == '__main__':
-    main(file_name="2.jpg")
+    main(file_name="1.jpg")
