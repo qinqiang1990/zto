@@ -110,7 +110,7 @@ class gen_id_card(object):
         self.len = len(self.char_set)
 
         self.max_size = 11
-        self.ft = put_chinese_text('../data/font/msyhbd.ttf')
+        self.ft = put_chinese_text('data/font/msyhbd.ttf')
 
     # 随机生成字串，长度固定
     # 返回text,及对应的向量
@@ -157,5 +157,8 @@ class gen_id_card(object):
 if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
     image_data, label, vec = genObj.gen_image(text_size=20, gap=1)
+
+    cv2.imwrite("data/cut/_100.jpg", image_data)
     cv2.imshow('image', image_data)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()

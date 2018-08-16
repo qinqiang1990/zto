@@ -93,10 +93,10 @@ def test_model(model, X_test, Y_test):
 
 if __name__ == '__main__':
     
-    X_train = np.load("X_train.npy")
-    Y_train = np.load("Y_train.npy")
+    X_train = np.load("ctc/X_train.npy")
+    Y_train = np.load("ctc/Y_train.npy")
 
-    weight_file = './ocr_ctc_weights.h5'
+    weight_file = 'ctc/ocr_ctc_weights.h5'
 
     epochs = 500
     batch_size = 256

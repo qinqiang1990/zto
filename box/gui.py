@@ -1,8 +1,12 @@
-import cv2
+import sys
 import os
+import cv2
 import math
 import numpy as np
-import cut_telephone as cut
+
+sys.path.append(os.getcwd())
+import box.cut_telephone as cut
+from telephone import common
 
 global img, name
 global point1, point2, angle
@@ -44,8 +48,6 @@ def rotate_(angle):
     cut.drawRect(img2, pt1, pt2, pt3, pt4, center, angle, color=0, lineWidth=2)
     cv2.imshow('image', img2)
 
-    print(half[0] * 2, half[1] * 2)
-
 
 def render(img):
     rotate_(angle)
@@ -53,7 +55,7 @@ def render(img):
     # cv2.imshow('image', img)
 
 
-def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
+def main(path='data/img', file_name='1.jpg', prefix='data/cut/_'):
     global img, name
     global point1, point2, angle
 
@@ -62,7 +64,7 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
 
-    cv2.namedWindow('image', cv2.WINDOW_FREERATIO)
+    cv2.namedWindow('image')
     cv2.setMouseCallback('image', on_mouse)
     cv2.imshow('image', img)
     while True:
@@ -103,8 +105,7 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
             height = abs(point1[1] - point2[1])
 
             img, cut_img = cut.rotate_(img, (row, col), (width, height), angle, draw=False, display=False)
-            cut_img = 255 - cut_img
-
+            cut_img = common.resize_(255 - cut_img, width=140, height=20)
             cv2.imwrite(prefix + file_name, cut_img)
             cv2.destroyAllWindows()
             return
@@ -132,4 +133,4 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
 # 黑:0
 # 白:255
 if __name__ == '__main__':
-    main(file_name="3.jpg")
+    main(file_name="2.jpg")

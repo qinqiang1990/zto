@@ -1,7 +1,14 @@
-from generator import gen_id_card
+# coding:utf-8
+import sys
+import os
+
 import numpy as np
 import random
 import string
+
+sys.path.append(os.getcwd())
+
+from ctc.generator import gen_id_card
 
 # characters = string.digits + string.ascii_uppercase
 characters = string.digits
@@ -21,7 +28,7 @@ def gen(batch_size=32, n_len=11):
     return x, y
 
 
-batch_x, batch_y = gen(256*100)
+batch_x, batch_y = gen(256 * 100)
 
 print(batch_x.shape)
 print(batch_y.shape)

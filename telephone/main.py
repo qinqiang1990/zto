@@ -1,14 +1,12 @@
 # coding:utf-8
-
-import cv2
+import sys
 import os
-import common as common
-import hand_write as hand_write
-import config as config
+import cv2
 
-# from telephone import common
-# from telephone import hand_write
-# from telephone import config
+sys.path.append(os.getcwd())
+from telephone import common
+from telephone import hand_write
+from telephone import config
 
 hand_write.run_()
 config = config.config(100)
