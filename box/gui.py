@@ -44,6 +44,8 @@ def rotate_(angle):
     cut.drawRect(img2, pt1, pt2, pt3, pt4, center, angle, color=0, lineWidth=2)
     cv2.imshow('image', img2)
 
+    print(half[0] * 2, half[1] * 2)
+
 
 def render(img):
     rotate_(angle)
@@ -60,7 +62,7 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
 
-    cv2.namedWindow('image')
+    cv2.namedWindow('image', cv2.WINDOW_FREERATIO)
     cv2.setMouseCallback('image', on_mouse)
     cv2.imshow('image', img)
     while True:
@@ -86,11 +88,11 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
             point2 = (point2[0] + 1, point2[1])
             render(img.copy())
         # rotate_
-        elif key == 110:
+        elif key == 109:
             angle = (angle + 1) % 180
             rotate_(angle)
             # rotate_
-        elif key == 109:
+        elif key == 110:
             angle = (angle - 1) % 180
             rotate_(angle)
 
@@ -130,4 +132,4 @@ def main(path='../data/img', file_name='1.jpg', prefix='../data/cut/_'):
 # 黑:0
 # 白:255
 if __name__ == '__main__':
-    main(file_name="2.jpg")
+    main(file_name="3.jpg")
