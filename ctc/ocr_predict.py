@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append(os.getcwd())
+import os
 import cv2
 import keras.backend.tensorflow_backend as K
-import ctc.dataset_ctc_loss as ocr
+import dataset_ctc_loss as ocr
 from keras import Model
 import numpy as np
-import os
 import telephone.common as common
 
 
@@ -17,14 +19,13 @@ def predict_model(model, input_):
 
 
 if __name__ == '__main__':
-    file_name = "../data/cut/_2.jpg"
+    file_name = "./data/cut/_1.jpg"
     origin = cv2.imread(file_name)
     img = common.resize_(origin, width=140, height=20)
     img = common.bgr2gray_(img)
 
-    cv2.imshow("image", img)
 
-    weight_file = './ocr_ctc_weights.h5'
+    weight_file = './ctc/ocr_ctc_weights.h5'
 
     model = ocr.build_network()
     input_ = img[np.newaxis, :, :, np.newaxis]
@@ -35,6 +36,8 @@ if __name__ == '__main__':
         output_ = predict_model(basemodel, input_)
         print("input_:", input_.shape)
         print("output_:", output_.shape)
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        print(output_[0])
+    
+#     cv2.imshow("image", img)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
