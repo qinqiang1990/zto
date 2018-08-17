@@ -162,7 +162,7 @@ class gen_id_card(object):
         # noise
         img = common.addGaussianNoise(img, 50, 50)  # 高斯噪声
         img = common.SaltAndPepper(img, 0.2)  # 再添加10%的椒盐噪声
-        return img[:, :, np.newaxis], text, vec
+        return img[:, :], text, vec
 
     # 单字转向量
     def char2vec(self, c):
