@@ -38,8 +38,8 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
             images = np.hstack((images, img))
     images = 255 - images
 
-    left = np.zeros((images.shape[0], 5))
-    right = np.zeros((images.shape[0], 5))
+    left = np.zeros((images.shape[0], 8))
+    right = np.zeros((images.shape[0], 8))
     images = np.hstack((left, images, right))
 
     img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
