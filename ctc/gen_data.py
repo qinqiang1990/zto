@@ -46,12 +46,6 @@ def gen_hand_write(batch_size=32, n_len=11):
 
 batch_x, batch_y = gen_hand_write(10)
 
-import cv2
-
-cv2.imshow("img", batch_x[1])
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
 print(batch_x.shape)
 print(batch_y.shape)
 
