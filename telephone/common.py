@@ -1,6 +1,36 @@
 # coding:utf-8
 import cv2
 import numpy as np
+import random
+
+
+# https://blog.csdn.net/u012936765/article/details/53200918
+# 定义添加高斯噪声的函数
+def addGaussianNoise(image, loc=30, scale=30):
+    PixcelMin = 0
+    PixcelMax = 255
+    h, w = image.shape
+    np.random.seed(1024)
+    G_Noiseimg = np.random.normal(loc=loc, scale=scale, size=h * w).reshape(h, w)
+    G_Noiseimg = G_Noiseimg + image
+
+    G_Noiseimg[G_Noiseimg > PixcelMax] = PixcelMax
+    G_Noiseimg[G_Noiseimg < PixcelMin] = PixcelMin
+    return G_Noiseimg.astype(np.uint8)
+
+
+# 定义添加椒盐噪声的函数
+def SaltAndPepper(src, percetage):
+    SP_NoiseImg = src
+    SP_NoiseNum = int(percetage * src.shape[0] * src.shape[1])
+    for i in range(SP_NoiseNum):
+        randX = random.randint(0, src.shape[0] - 1)
+        randY = random.randint(0, src.shape[1] - 1)
+        if random.randint(0, 1) == 0:
+            SP_NoiseImg[randX, randY] = 0
+        else:
+            SP_NoiseImg[randX, randY] = 255
+    return SP_NoiseImg
 
 
 def resize_(img, shrink=0.3, width=None, height=None):

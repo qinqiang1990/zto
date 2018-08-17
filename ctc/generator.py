@@ -56,8 +56,10 @@ class put_chinese_text(object):
 
         if self.ttf == "data/font/times.ttf":
             gap = gap * 1.2
-        if self.ttf == "data/font/msyhbd.ttf":
+        elif self.ttf == "data/font/msyhbd.ttf":
             gap = gap * 1
+        else:
+            gap = gap
         prev_char = 0
         pen = freetype.Vector()
         pen.x = x_pos << 6  # div 64
@@ -125,7 +127,7 @@ class gen_id_card(object):
         self.max_size = 11
 
         # self.font = ['data/font/msyhbd.ttf', 'data/font/times.ttf']
-        self.font = ['data/font/simhei.ttf']
+        self.font = ['data/font/MSYH.TTC']
 
     # 随机生成字串，长度固定
     # 返回text,及对应的向量
@@ -141,38 +143,6 @@ class gen_id_card(object):
             vecs[i * self.len:(i + 1) * self.len] = np.copy(vec)
         return text, vecs
 
-    # https://blog.csdn.net/u012936765/article/details/53200918
-    # 定义添加高斯噪声的函数
-    def addGaussianNoise(self, image, loc=30, scale=30):
-        PixcelMin = 0
-        PixcelMax = 255
-        h, w = image.shape
-        np.random.seed(1024)
-        G_Noiseimg = np.random.normal(loc=loc, scale=scale, size=h * w).reshape(h, w)
-        G_Noiseimg = G_Noiseimg + image
-
-        G_Noiseimg[G_Noiseimg > PixcelMax] = PixcelMax
-        G_Noiseimg[G_Noiseimg < PixcelMin] = PixcelMin
-        return G_Noiseimg.astype(np.uint8)
-
-    # 定义添加椒盐噪声的函数
-    def SaltAndPepper(self, src, percetage):
-        SP_NoiseImg = src
-        SP_NoiseNum = int(percetage * src.shape[0] * src.shape[1])
-        for i in range(SP_NoiseNum):
-            randX = random.randint(0, src.shape[0] - 1)
-            randY = random.randint(0, src.shape[1] - 1)
-            if random.randint(0, 1) == 0:
-                SP_NoiseImg[randX, randY] = 0
-            else:
-                SP_NoiseImg[randX, randY] = 255
-        return SP_NoiseImg
-
-    def noise(self, img):
-        img = self.addGaussianNoise(img, 50, 50)  # 高斯噪声
-        img = self.SaltAndPepper(img, 0.2)  # 再添加10%的椒盐噪声
-        return img
-
     # 根据生成的text，生成image,返回标签和图片元素数据
     def gen_image(self, text_size=20):
 
@@ -185,9 +155,13 @@ class gen_id_card(object):
         # 仅返回单通道值，颜色对于汉字识别没有什么意义
         if self.ft.ttf == "data/font/msyhbd.ttf":
             img = common.erode_(image[:, :, 0], ksize=(3, 3))
-        if self.ft.ttf == "data/font/times.ttf":
+        elif self.ft.ttf == "data/font/times.ttf":
             img = common.erode_(image[:, :, 0], ksize=(2, 2))
-        # img = self.noise(img)
+        else:
+            img = image[:, :, 0]
+        # noise
+        img = common.addGaussianNoise(img, 50, 50)  # 高斯噪声
+        img = common.SaltAndPepper(img, 0.2)  # 再添加10%的椒盐噪声
         return img[:, :, np.newaxis], text, vec
 
     # 单字转向量
@@ -210,9 +184,8 @@ class gen_id_card(object):
 
 if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
-    image_data, label, vec = genObj.gen_image(text_size=20)
-
-    cv2.imwrite("data/cut/_900.jpg", image_data)
+    image_data, label, vec = genObj.gen_image(text_size=16)
+    cv2.imwrite("data/cut/_902.jpg", image_data)
     cv2.imshow('image', image_data)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

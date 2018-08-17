@@ -11,26 +11,25 @@ from telephone import common
 def genFontImage(font, char, image_size):
     image = Image.new('1', image_size, color=255)
     draw = ImageDraw.Draw(image)
-    draw.text((0, -4), char, font=font, fill='#000000')
+    draw.text((0, 0), char, font=font, fill='#000000')
     return image
 
 
-def run_():
-    font_size = 20
-    image_size = (12, 20)
-
-    # font = ImageFont.truetype('data/font/msyhbd.ttf', font_size)
-    font = ImageFont.truetype('data/font/times.ttf', font_size)
+def run_(font_size=16, image_size=(10, 20), font_path='data/font/simfang.ttf'):
+    font = ImageFont.truetype(font_path, font_size)
     hans = "0123456789"
-
     for han in hans[:10]:
         image = genFontImage(font, han, image_size)
         image.save("data/template/" + str(hans.index(han)) + '.png')
 
 
-def get_img(str="188", path='data/template', run=False):
+def get_img(str="188", path='data/template', run=False, font_path=None, height=20, width=140):
     if run:
-        run_()
+        fonts = ['data/font/MSYHBD.TTC', 'data/font/simkai.ttf', 'data/font/simhei.ttf',
+                 'data/font/msyhbd.ttf', 'data/font/MSYH.TTC']
+        if font_path is None:
+            font_path = fonts[np.random.randint(0, len(fonts) - 1)]
+        run_(font_path=font_path)
     images = None
     for _ in str:
         img = cv2.imread(os.path.join(path, _ + ".png"), 0)
@@ -38,12 +37,24 @@ def get_img(str="188", path='data/template', run=False):
             images = img
         else:
             images = np.hstack((images, img))
-    return 255 - images
+    images = 255 - images
+
+    left = np.zeros((images.shape[0], 5))
+    right = np.zeros((images.shape[0], 5))
+    images = np.hstack((left, images, right))
+
+    img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
+
+    # noise
+    img = common.SaltAndPepper(img, 0.15)  # 再添加10%的椒盐噪声
+    img = common.addGaussianNoise(img, 30, 30)  # 高斯噪声
+
+    return img
 
 
 if __name__ == '__main__':
-    img = get_img(str="18852890100", run=True)
-    img = common.erode_(img, ksize=(1, 1))
+    img = get_img(str="18852890100", run=True, font_path=None)
     cv2.imshow("image", img)
+    cv2.imwrite("data/cut/_901.jpg", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
