@@ -90,7 +90,7 @@ def test_model(model, X_test, Y_test):
     out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
 
     accur = np.sum(abs(out - Y_test), axis=1)
-    accur_score = len(accur == 0) * 1.0 / len(accur)
+    accur_score = len(accur[accur == 0]) * 1.0 / len(accur)
     print("accur_score:", accur_score)
 
 
@@ -142,8 +142,8 @@ if __name__ == '__main__':
     times = 1
     while times:
 
-        epochs = mod_config.getConfig("train", "epochs")
-        batch_epochs = mod_config.getConfig("train", "save_epochs")
+        epochs = int(mod_config.getConfig("train", "epochs"))
+        batch_epochs = int(mod_config.getConfig("train", "save_epochs"))
 
         model.fit(inputs, outputs,
                   batch_size=batch_size,
