@@ -10,7 +10,6 @@ def addGaussianNoise(image, loc=30, scale=30):
     PixcelMin = 0
     PixcelMax = 255
     h, w = image.shape
-    np.random.seed(1024)
     G_Noiseimg = np.random.normal(loc=loc, scale=scale, size=h * w).reshape(h, w)
     G_Noiseimg = G_Noiseimg + image
 

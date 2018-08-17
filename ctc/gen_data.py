@@ -46,7 +46,13 @@ def gen_hand_write(batch_size=32, n_len=11):
 
 # batch_x, batch_y = gen(256*10)
 
-batch_x, batch_y = gen_hand_write(256 * 100)
+batch_x, batch_y = gen_hand_write(256 * 10)
+
+cv2.imwrite("data/cut/_901.jpg", batch_x[1])
+cv2.imwrite("data/cut/_902.jpg", batch_x[2])
+cv2.imwrite("data/cut/_903.jpg", batch_x[3])
+cv2.imwrite("data/cut/_904.jpg", batch_x[4])
+cv2.imwrite("data/cut/_905.jpg", batch_x[5])
 
 print(batch_x.shape)
 print(batch_y.shape)
