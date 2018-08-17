@@ -150,7 +150,7 @@ class gen_id_card(object):
         text, vec = self.random_text()
         img = np.zeros([self.height, self.width, 3])
         color_ = (255, 255, 255)  # Write
-        pos = (2, -2)
+        pos = (10, -2)
         image = self.ft.draw_text(img, pos, text, text_size, color_)
         # 仅返回单通道值，颜色对于汉字识别没有什么意义
         if self.ft.ttf == "data/font/msyhbd.ttf":
@@ -184,7 +184,7 @@ class gen_id_card(object):
 
 if __name__ == '__main__':
     genObj = gen_id_card(height=20, width=140)
-    image_data, label, vec = genObj.gen_image(text_size=16)
+    image_data, label, vec = genObj.gen_image(text_size=18)
     cv2.imwrite("data/cut/_902.jpg", image_data)
     cv2.imshow('image', image_data)
     cv2.waitKey(0)

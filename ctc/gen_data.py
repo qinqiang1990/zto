@@ -19,11 +19,11 @@ width, height, n_class = 140, 20, len(characters)
 
 
 def gen(batch_size=32, n_len=11):
-    genObj = gen_id_card(width, height)
+    genObj = gen_id_card(height=height, width=width)
     x = np.zeros((batch_size, height, width, 1), dtype=np.uint8)
     y = np.zeros((batch_size, n_len), dtype=np.uint8)
     for i in range(batch_size):
-        image_data, label, vec = genObj.gen_image()
+        image_data, label, vec = genObj.gen_image(text_size=18)
         x[i] = image_data
         y[i] = [int(_) for _ in label]
     return x, y
@@ -42,12 +42,12 @@ def gen_hand_write(batch_size=32, n_len=11):
     return x, y
 
 
-# batch_x, batch_y = gen(256 * 100)
+batch_x, batch_y = gen(256 * 100)
 
-batch_x, batch_y = gen_hand_write(10)
+# batch_x, batch_y = gen_hand_write(10)
 
 print(batch_x.shape)
 print(batch_y.shape)
 
-np.save("X_train.npy", batch_x)
-np.save("Y_train.npy", batch_y)
+np.save("ctc/X_train.npy", batch_x)
+np.save("ctc/Y_train.npy", batch_y)
