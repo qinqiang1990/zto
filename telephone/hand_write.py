@@ -25,8 +25,7 @@ def run_(font_size=16, image_size=(10, 20), font_path='data/font/simfang.ttf'):
 
 def get_img(str="188", path='data/template', run=False, font_path=None, height=20, width=140):
     if run:
-        fonts = ['data/font/MSYHBD.TTC', 'data/font/simkai.ttf', 'data/font/simhei.ttf',
-                 'data/font/msyhbd.ttf', 'data/font/MSYH.TTC']
+        fonts = ['data/font/MSYHBD.TTC', 'data/font/msyhbd.ttf', 'data/font/MSYH.TTC']
         if font_path is None:
             font_path = fonts[np.random.randint(0, len(fonts) - 1)]
         run_(font_path=font_path)
@@ -55,6 +54,6 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
 if __name__ == '__main__':
     img = get_img(str="18852890100", run=True, font_path=None)
     cv2.imshow("image", img)
-    cv2.imwrite("data/cut/_901.jpg", img)
+    cv2.imwrite("data/cut/_904.jpg", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

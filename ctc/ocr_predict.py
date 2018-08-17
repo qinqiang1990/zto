@@ -20,7 +20,7 @@ def predict_model(model, input_):
 
 
 if __name__ == '__main__':
-    file_name = "data/cut/_6.jpg"
+    file_name = "data/cut/_901.jpg"
     img = cv2.imread(file_name)
     img = common.resize_(img, width=140, height=20)
     img = common.bgr2gray_(img)
