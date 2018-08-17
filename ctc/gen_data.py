@@ -36,16 +36,21 @@ def gen_hand_write(batch_size=32, n_len=11):
     for i in range(batch_size):
         number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
         random_text = "".join(number.astype(np.unicode))
-        image_data = hand_write.get_img(str=random_text, run=False, font_path=None)
-        x[i, :, :, 0] = cv2.adaptiveThreshold(image_data, 255,
-                                              cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                              cv2.THRESH_BINARY, 9, -10)
+        image_data = hand_write.get_img(str=random_text, run=True, font_path=None)
+        x[i, :, :, 0] = image_data
         y[i] = number
     return x, y
 
 
 # batch_x, batch_y = gen(256 * 100)
+
 batch_x, batch_y = gen_hand_write(10)
+
+import cv2
+
+cv2.imshow("img", batch_x[1])
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 print(batch_x.shape)
 print(batch_y.shape)
