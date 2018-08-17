@@ -5,6 +5,11 @@ from keras.layers import Input, Dense, Flatten, Conv2D, Bidirectional, GRU, Lamb
 from keras.layers import MaxPooling2D, Permute, TimeDistributed, Dropout
 import keras.backend.tensorflow_backend as K
 import os
+import sys
+
+sys.path.append(os.getcwd())
+
+from config import mod_config
 
 IMAGE_HEIGHT = 20
 IMAGE_WIDTH = 140
@@ -44,7 +49,7 @@ def build_network():
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
 
     basemodel = Model(inputs=input, outputs=y_pred)
-    
+
     labels = Input(name='the_labels', shape=[MAX_CAPTCHA], dtype='float32')
     input_length = Input(name='input_length', shape=[1], dtype='int64')
     label_length = Input(name='label_length', shape=[1], dtype='int64')
@@ -52,7 +57,7 @@ def build_network():
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input, labels, input_length, label_length], outputs=loss_out)
-    
+
     return model
 
 
@@ -75,8 +80,8 @@ def decode_model_output(output, blank=10):
 
 
 def test_model(model, X_test, Y_test):
-    print("X_test:",X_test.shape)
-    print("Y_test:",Y_test.shape)
+    print("X_test:", X_test.shape)
+    print("Y_test:", Y_test.shape)
 
     y_pred = model.predict(X_test)
     shape = y_pred[:, :, :].shape
@@ -84,37 +89,37 @@ def test_model(model, X_test, Y_test):
     ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
     out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
 
-    accur = np.sum(abs(out - Y_test),axis=1)
-    accur_score = len(accur==0)*1.0/len(accur)
-    print("accur_score:",accur_score)
+    accur = np.sum(abs(out - Y_test), axis=1)
+    accur_score = len(accur == 0) * 1.0 / len(accur)
+    print("accur_score:", accur_score)
+
 
 #     print(decode_model_output(y_pred) - Y_test)
 
 
 if __name__ == '__main__':
-    
+
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")
 
     weight_file = 'ctc/ocr_ctc_weights.h5'
 
-    epochs = 500
     batch_size = 256
     verbose = 2
-    test_size = int(X_train.shape[0]*0.1)
-    
+    test_size = int(X_train.shape[0] * 0.1)
+
     X_test = X_train[0:test_size, :, :, :]
     Y_test = Y_train[0:test_size, :]
 
     X_train = X_train[test_size:, :, :, :]
     Y_train = Y_train[test_size:, :]
 
-    print("X_train:",X_train.shape)
-    print("Y_train:",Y_train.shape)
+    print("X_train:", X_train.shape)
+    print("Y_train:", Y_train.shape)
 
     input_length = np.ones([X_train.shape[0], 1]) * 18
     label_length = np.ones([X_train.shape[0], 1]) * MAX_CAPTCHA
-    
+
     inputs = {'the_input': X_train,
               'the_labels': Y_train,
               'input_length': input_length,
@@ -134,10 +139,21 @@ if __name__ == '__main__':
 
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
 
-    model.fit(inputs, outputs,
-              batch_size=batch_size,
-              epochs=epochs,
-              verbose=verbose,
-              validation_split=0.3)
+    times = 1
+    while times:
 
-    model.save_weights(weight_file)
+        epochs = mod_config.getConfig("train", "epochs")
+        batch_epochs = mod_config.getConfig("train", "save_epochs")
+
+        model.fit(inputs, outputs,
+                  batch_size=batch_size,
+                  epochs=batch_epochs,
+                  verbose=verbose,
+                  validation_split=0.3)
+
+        model.save_weights(weight_file)
+
+        if times > epochs / batch_epochs:
+            break
+        print("cur_epochs:", batch_epochs * times, "epochs:", epochs)
+        times = times + 1
