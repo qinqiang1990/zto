@@ -79,6 +79,7 @@ def blur_(img, ksize=(5, 5)):
 # 100 200
 def binary_(img, thresh=100):
     ret, binary = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY)
+    # binary = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
     return binary
 
 

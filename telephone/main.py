@@ -61,7 +61,7 @@ def chosen(origin):
 
 
 def run():
-    path = "../data/img/"
+    path = "data/img/"
     files = os.listdir(path)
     for file in files:
         file_path = os.path.join(path, file)
@@ -73,27 +73,29 @@ def run():
 
 
 # 11,12,13
-def main_(file_path="../data/img/11.jpg"):
+def main_(file_path="data/img/11.jpg"):
     img = read_(file_path, shrink=1)
     img = cut_(img)
-    cv2.imwrite("../data/result/1_cut.jpg", img)
+    cv2.imwrite("data/result/1_cut.jpg", img)
     img = roi_(img)
-    cv2.imwrite("../data/result/2_roi.jpg", img)
+    cv2.imwrite("data/result/2_roi.jpg", img)
     if img.shape[0] * img.shape[1] > 400 * 400:
         img = chosen(img)
-    cv2.imwrite("../data/result/3_chosen.jpg", img)
+    cv2.imwrite("data/result/3_chosen.jpg", img)
     img = common.canny_(img)
 
     temp = hand_write.get_img("872")
+    cv2.imshow("temp", temp)
+
     temp = common.canny_(temp)
-    cv2.imwrite("../data/result/4_temp.jpg", temp)
+    cv2.imwrite("data/result/4_temp.jpg", temp)
 
     img = common.template(img, temp)
-    cv2.imwrite("../data/result/5_match.jpg", img)
+    cv2.imwrite("data/result/5_match.jpg", img)
 
     # 图像分段(分水岭算法)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
