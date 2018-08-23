@@ -45,7 +45,7 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
     img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
 
     # noise
-    img = common.SaltAndPepper(img, 0.15)  # 再添加10%的椒盐噪声
+    img = common.SaltAndPepper(img, 0.3)  # 再添加10%的椒盐噪声
     img = common.addGaussianNoise(img, 30, 30)  # 高斯噪声
 
     return img

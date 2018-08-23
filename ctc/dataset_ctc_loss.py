@@ -45,7 +45,7 @@ def build_network():
     x = Bidirectional(GRU(60, return_sequences=True), merge_mode='concat')(x)
     x = Dropout(0.5)(x)
     x = Bidirectional(GRU(60, return_sequences=True), merge_mode='sum')(x)
-
+    
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
 
     basemodel = Model(inputs=input, outputs=y_pred)
