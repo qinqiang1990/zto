@@ -133,4 +133,4 @@ def main(path='data/min_img', file_name='1.jpg', prefix='data/cut/_'):
 # 黑:0
 # 白:255
 if __name__ == '__main__':
-    main(file_name="1.jpg")
+    main(file_name="1.jpg", prefix='data/min_img/_')

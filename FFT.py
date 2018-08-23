@@ -33,7 +33,7 @@ def fourier(gray, method=None):
     ret, thresh = cv.threshold(magnitude_uint, 11, 255, cv.THRESH_BINARY)
     cv.imshow('thresh', thresh)
     # 霍夫直线变换
-    lines = cv.HoughLinesP(thresh, 1, np.pi / 180, 100, minLineLength=100, maxLineGap=100)
+    lines = cv.HoughLinesP(thresh, 1, np.pi / 180, 50, minLineLength=100, maxLineGap=100)
 
     # 创建一个新图像，标注直线
     lineimg = np.ones(nimg.shape, dtype=np.uint8)
@@ -79,12 +79,13 @@ def fourier(gray, method=None):
 
 if __name__ == '__main__':
     # 1、读取文件，灰度化
-    # img = cv.imread('data/min_img/9.jpg')
-    img = cv.imread('data/min_img/9_1.jpg')
+    file_name = 'data/min_img/15.jpg'
+    img = cv.imread(file_name)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    # gray = fourier(gray, method=HORIZONTAL)
-    gray = fourier(gray, method=VERTICAL)
+    gray = fourier(gray, method=HORIZONTAL)
+    # gray = fourier(gray, method=VERTICAL)
+    cv.imwrite(file_name, gray)
 
     cv.waitKey(0)
     cv.destroyAllWindows()
