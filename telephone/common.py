@@ -41,28 +41,9 @@ def resize_(img, shrink=0.3, width=None, height=None):
     return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
 
-# sqrt
-def hist_impore_(img):
-    hist, bins = np.histogram(img.flatten(), 256, [0, 256])
-    cdf = hist.cumsum()
-    cdf_m = np.ma.masked_equal(cdf, 0)
-    cdf_m = (cdf_m - cdf_m.min()) / (cdf_m.max() - cdf_m.min())
-    cdf_m = cdf_m * cdf_m * cdf_m * cdf_m * cdf_m
-    cdf_m = (cdf_m - cdf_m.min()) / (cdf_m.max() - cdf_m.min())
-
-    cdf_m = cdf_m * 255
-    cdf = np.ma.filled(cdf_m, 0).astype('uint8')
-    equ = cdf[img]
-    return equ
-
-
-def equalizeHist_(img, improve=0):
+def equalizeHist_(img):
     for _ in range(img.shape[2]):
-        if improve == 0:
-            img[:, :, _] = cv2.equalizeHist(img[:, :, _])
-        elif improve == 1:
-            img[:, :, _] = hist_impore_(img[:, :, _])
-
+        img[:, :, _] = cv2.equalizeHist(img[:, :, _])
     return img
 
 
@@ -285,6 +266,11 @@ def hough_lines_(edges, img):
             # 绘制一条直线
             cv2.line(img, pt1, pt2, (255), 1)
     return img
+
+
+def filter_(img, kernel=None):
+    # kernel = np.array([[0, -2, 0], [-2, 9, -2], [0, -2, 0]])
+    return cv2.filter2D(img, -1, kernel)
 
 # randon
 # DFT

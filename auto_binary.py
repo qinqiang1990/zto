@@ -53,6 +53,7 @@ for file in files:
     file_path = os.path.join(path, file)
     img = cv2.imread(file_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
     # _, img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
     # _, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU)
     # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, -10)
