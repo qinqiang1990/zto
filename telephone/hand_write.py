@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import cv2
 import os
 import sys
+import random
 import numpy as np
 
 sys.path.append(os.getcwd())
@@ -45,8 +46,12 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
     img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
 
     # noise
-    img = common.SaltAndPepper(img, 0.3)  # 再添加10%的椒盐噪声
-    img = common.addGaussianNoise(img, 30, 30)  # 高斯噪声
+#     img = common.SaltAndPepper(img, 0.1)  # 再添加10%的椒盐噪声
+    img = common.addGaussianNoise(img, 20, 20)  # 高斯噪声
+
+    degree=random.randint(-5,5)
+    matRotation=cv2.getRotationMatrix2D((width/2,height/2),degree,1)
+    img=cv2.warpAffine(img,matRotation,(width,height),borderValue=(0,0,0))
 
     return img
 
