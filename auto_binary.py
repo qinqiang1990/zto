@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 
 from telephone import hand_write
 
-img = hand_write.get_img(str="18852890100", run=True, font_path=None)
-cv2.imwrite("data/cut/_901.jpg", img)
-
 
 # method: mean | otsu
 def bin_(img, method="mean", rate=0.9, bais=10):

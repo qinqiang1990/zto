@@ -21,6 +21,7 @@ def predict_model(model, input_):
 
 def get_data(path="data/cut/", image_height=20, image_width=140):
     data = []
+    label = []
     files = os.listdir(path)
     for file in files:
         file_path = os.path.join(path, file)
@@ -29,7 +30,8 @@ def get_data(path="data/cut/", image_height=20, image_width=140):
         img = common.bgr2gray_(img)
         img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
         data.append(img[:, :, np.newaxis])
-    return data, None
+        label.append(map(int, file.split(',')[0]))
+    return np.array(data), np.array(label)
 
 
 if __name__ == '__main__':
@@ -40,7 +42,7 @@ if __name__ == '__main__':
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
-        input_, output_ = get_data()
-        pred_ = predict_model(basemodel, input_)
-        print("input_:", input_.shape)
+        data_, label_ = get_data()
+        pred_ = predict_model(basemodel, data_)
+        print("label_:", label_.shape)
         print("pred_:", pred_.shape)
