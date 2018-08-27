@@ -40,7 +40,7 @@ if __name__ == '__main__':
     img_height = int(mod_config.getConfig("train", "img_height"))
     img_width = int(mod_config.getConfig("train", "img_width"))
 
-    model = ocr.build_network(image_width=None)
+    model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = 'ctc/ocr_ctc_weights.h5'
     if os.path.exists(weight_file):
