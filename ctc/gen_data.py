@@ -10,12 +10,16 @@ sys.path.append(os.getcwd())
 
 from ctc.generator import gen_id_card
 from telephone import hand_write
+from config import mod_config
 
 # characters = string.digits + string.ascii_uppercase
 characters = string.digits
 # print(characters)
 
-width, height, n_class = 140, 20, len(characters)
+
+height = int(mod_config.getConfig("train", "img_height"))
+width = int(mod_config.getConfig("train", "img_width"))
+n_class = len(characters)
 
 
 def gen(batch_size=32, n_len=11):
@@ -45,18 +49,19 @@ def gen_hand_write(batch_size=32, n_len=11):
     return x, y
 
 
-# batch_x, batch_y = gen(256*100)
+if __name__ == '__main__':
+    # batch_x, batch_y = gen(256*100)
 
-batch_x, batch_y = gen_hand_write(10)
+    batch_x, batch_y = gen_hand_write(256 * 100)
 
-cv2.imwrite("data/cut/" + "".join(map(str, batch_y[0])) + ".jpg", batch_x[0])
-cv2.imwrite("data/cut/" + "".join(map(str, batch_y[1])) + ".jpg", batch_x[1])
-cv2.imwrite("data/cut/" + "".join(map(str, batch_y[2])) + ".jpg", batch_x[2])
-cv2.imwrite("data/cut/" + "".join(map(str, batch_y[3])) + ".jpg", batch_x[3])
-cv2.imwrite("data/cut/" + "".join(map(str, batch_y[4])) + ".jpg", batch_x[4])
+    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[0])) + ".jpg", batch_x[0])
+    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[1])) + ".jpg", batch_x[1])
+    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[2])) + ".jpg", batch_x[2])
+    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[3])) + ".jpg", batch_x[3])
+    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[4])) + ".jpg", batch_x[4])
 
-print(batch_x.shape)
-print(batch_y.shape)
+    print(batch_x.shape)
+    print(batch_y.shape)
 
-np.save("ctc/X_train.npy", batch_x)
-np.save("ctc/Y_train.npy", batch_y)
+    np.save("ctc/X_train.npy", batch_x)
+    np.save("ctc/Y_train.npy", batch_y)

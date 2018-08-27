@@ -9,6 +9,7 @@ import numpy as np
 sys.path.append(os.getcwd())
 from telephone import common
 import ctc.dataset_ctc_loss as ocr
+from config import mod_config
 
 
 def predict_model(model, input_):
@@ -36,13 +37,16 @@ def get_data(path="data/cut/", image_height=20, image_width=140):
 
 if __name__ == '__main__':
 
+    img_height = int(mod_config.getConfig("train", "img_height"))
+    img_width = int(mod_config.getConfig("train", "img_width"))
+
     model = ocr.build_network(image_width=None)
 
     weight_file = 'ctc/ocr_ctc_weights.h5'
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
-        data_, label_ = get_data()
+        data_, label_ = get_data(image_height=img_height, image_width=img_width)
         pred_ = predict_model(basemodel, data_)
         print("label_:", label_.shape)
         print("pred_:", pred_.shape)

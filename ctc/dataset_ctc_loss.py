@@ -10,9 +10,7 @@ import sys
 sys.path.append(os.getcwd())
 
 from config import mod_config
-
-IMAGE_HEIGHT = 20
-IMAGE_WIDTH = 140
+from ctc import gen_data
 
 MAX_CAPTCHA = 11
 CHAR_SET_LEN = 10
@@ -27,7 +25,9 @@ def ctc_lambda_func(args):
     return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
-def build_network(image_height=IMAGE_HEIGHT, image_width=IMAGE_WIDTH):
+def build_network(image_height=140, image_width=20):
+    hidden_unit = int(mod_config.getConfig("train", "hidden_unit"))
+
     input = Input(shape=(image_height, image_width, 1), name='the_input')
 
     x = Conv2D(nb_filters * 1, kernel_size, activation='relu', padding="same")(input)
@@ -43,9 +43,9 @@ def build_network(image_height=IMAGE_HEIGHT, image_width=IMAGE_WIDTH):
     x = Dropout(0.5)(x)
     x = TimeDistributed(Flatten())(x)
 
-    x = Bidirectional(GRU(256, return_sequences=True), merge_mode='concat')(x)
+    x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='concat')(x)
     x = Dropout(0.5)(x)
-    x = Bidirectional(GRU(256, return_sequences=True), merge_mode='sum')(x)
+    x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='sum')(x)
 
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
 
@@ -100,6 +100,8 @@ def test_model(model, X_test, Y_test):
 
 if __name__ == '__main__':
 
+    gen_data.gen_hand_write(256 * 100)
+
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")
 
@@ -118,18 +120,22 @@ if __name__ == '__main__':
     print("X_train:", X_train.shape)
     print("Y_train:", Y_train.shape)
 
-    input_length = np.ones([X_train.shape[0], 1]) * 18
+    input_length = np.ones([X_train.shape[0], 1]) * int(mod_config.getConfig("train", "input_length"))
     label_length = np.ones([X_train.shape[0], 1]) * MAX_CAPTCHA
 
-    inputs = {'the_input': X_train,
-              'the_labels': Y_train,
-              'input_length': input_length,
-              'label_length': label_length
-              }
+    inputs = {
+        'the_input': X_train,
+        'the_labels': Y_train,
+        'input_length': input_length,
+        'label_length': label_length
+    }
 
     outputs = {'ctc': np.zeros([X_train.shape[0]])}
 
-    model = build_network()
+    img_height = int(mod_config.getConfig("train", "img_height"))
+    img_width = int(mod_config.getConfig("train", "img_width"))
+
+    model = build_network(image_height=img_height, image_width=img_width)
 
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
