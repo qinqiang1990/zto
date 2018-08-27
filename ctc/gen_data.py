@@ -40,18 +40,18 @@ def gen_hand_write(batch_size=32, n_len=11):
     y = np.zeros((batch_size, n_len), dtype=np.uint8)
     for i in range(batch_size):
         if i == 0:
-            number = "18852890100"
+            random_text = "18852890100"
         elif i == 1:
-            number = "17224537850"
+            random_text = "17224537850"
         elif i == 2:
-            number = "12643790432"
+            random_text = "12643790432"
         elif i == 3:
-            number = "53791628492"
+            random_text = "53791628492"
         elif i == 4:
-            number = "86412583568"
+            random_text = "86412583568"
         else:
             number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
-        random_text = "".join(number.astype(np.unicode))
+            random_text = "".join(number.astype(np.unicode))
         image_data = hand_write.get_img(str=random_text, run=True, font_path=None)
         image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
         image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
