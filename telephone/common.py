@@ -25,10 +25,12 @@ def SaltAndPepper(src, percetage):
     for i in range(SP_NoiseNum):
         randX = random.randint(0, src.shape[0] - 1)
         randY = random.randint(0, src.shape[1] - 1)
-        if random.randint(0, 1) == 0:
-            SP_NoiseImg[randX, randY] = 0
-        else:
-            SP_NoiseImg[randX, randY] = 255
+
+        SP_NoiseImg[randX, randY] = 0
+        # if random.randint(0, 1) == 0:
+        #     SP_NoiseImg[randX, randY] = 0
+        # else:
+        #     SP_NoiseImg[randX, randY] = 255
     return SP_NoiseImg
 
 
