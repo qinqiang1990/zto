@@ -31,7 +31,7 @@ def get_data(path="data/cut/", image_height=20, image_width=140):
         img = common.bgr2gray_(img)
         img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
         data.append(img[:, :, np.newaxis])
-        label.append(map(int, file.split(',')[0]))
+        label.append(list(map(int, file.split(',')[0])))
     return np.array(data), np.array(label)
 
 
