@@ -27,7 +27,7 @@ def ctc_lambda_func(args):
     return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
-def build_network(image_height=IMAGE_HEIGHT,image_width=IMAGE_WIDTH):
+def build_network(image_height=IMAGE_HEIGHT, image_width=IMAGE_WIDTH):
     input = Input(shape=(image_height, image_width, 1), name='the_input')
 
     x = Conv2D(nb_filters * 1, kernel_size, activation='relu', padding="same")(input)
@@ -46,7 +46,7 @@ def build_network(image_height=IMAGE_HEIGHT,image_width=IMAGE_WIDTH):
     x = Bidirectional(GRU(256, return_sequences=True), merge_mode='concat')(x)
     x = Dropout(0.5)(x)
     x = Bidirectional(GRU(256, return_sequences=True), merge_mode='sum')(x)
-    
+
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
 
     basemodel = Model(inputs=input, outputs=y_pred)
@@ -58,7 +58,7 @@ def build_network(image_height=IMAGE_HEIGHT,image_width=IMAGE_WIDTH):
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input, labels, input_length, label_length], outputs=loss_out)
-
+    model.summary()
     return model
 
 
