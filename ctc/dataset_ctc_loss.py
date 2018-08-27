@@ -13,6 +13,7 @@ from config import mod_config
 
 IMAGE_HEIGHT = 20
 IMAGE_WIDTH = 140
+
 MAX_CAPTCHA = 11
 CHAR_SET_LEN = 10
 
@@ -26,8 +27,8 @@ def ctc_lambda_func(args):
     return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
-def build_network():
-    input = Input(shape=(IMAGE_HEIGHT, IMAGE_WIDTH, 1), name='the_input')
+def build_network(image_height=IMAGE_HEIGHT,image_width=IMAGE_WIDTH):
+    input = Input(shape=(image_height, image_width, 1), name='the_input')
 
     x = Conv2D(nb_filters * 1, kernel_size, activation='relu', padding="same")(input)
     x = MaxPooling2D(pool_size=pool_size, padding="same")(x)

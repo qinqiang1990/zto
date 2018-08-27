@@ -39,6 +39,7 @@ def gen_hand_write(batch_size=32, n_len=11):
         random_text = "".join(number.astype(np.unicode))
         image_data = hand_write.get_img(str=random_text, run=True, font_path=None)
         image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+        image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
         x[i, :, :, 0] = image_data
         y[i] = number
     return x, y

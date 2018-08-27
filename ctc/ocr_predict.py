@@ -20,15 +20,17 @@ def predict_model(model, input_):
 
 
 if __name__ == '__main__':
-    file_name = "data/cut/_12.jpg"
+    IMAGE_HEIGHT = 20
+    IMAGE_WIDTH = 140
+    file_name = "data/cut/_2.jpg"
     img = cv2.imread(file_name)
-    img = common.resize_(img, width=140, height=20)
+    img = common.resize_(img, width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
     img = common.bgr2gray_(img)
     img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
 
     weight_file = 'ctc/ocr_ctc_weights.h5'
 
-    model = ocr.build_network()
+    model = ocr.build_network(image_width=None)
     input_ = img[np.newaxis, :, :, np.newaxis]
 
     if os.path.exists(weight_file):
