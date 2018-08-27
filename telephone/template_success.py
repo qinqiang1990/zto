@@ -79,8 +79,10 @@ def genFontImage(font, char, image_size):
     image.save('temp.jpg')
 
 
+
+
 # 11,12,13
-def main_(file_path="../data/img/1.jpg"):
+def main_(file_path="../data/img/1_1.jpg"):
     img = read_(file_path, shrink=1)
     img = cut_(img)
     img = roi_(img)
@@ -89,10 +91,11 @@ def main_(file_path="../data/img/1.jpg"):
         img = chosen(img)
     img = 255 - img
     img = common.bgr2gray_(img)
-    # img = common.canny_(img)
-    # img = common.Remove_holes(img)
+    # # img = common.canny_(img)
+    # # img = common.Remove_holes(img)
     img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
-    img = common.Removing_small_connected_domain(img, 5)
+    # img = cv2.bilateralFilter(img, 5, 100, 10)
+    # img = common.Removing_small_connected_domain(img, 5)
     cv2.imshow("chosen", img)
 
     genFontImage(ImageFont.truetype('../data/font/msyhbd.ttf', 22), '2', (14, 20))

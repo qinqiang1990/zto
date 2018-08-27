@@ -366,4 +366,61 @@ def Removing_small_connected_domain(thresh, AreaLimit):
 
     return img
 
+
+def border(area, ratio=0.85, gap=100, axis=1):
+    '''
+    :param area:
+    :param ratio:
+    :param gap:
+    :param axis: 1:height;0:width
+    :return:
+    '''
+    h = np.sum(area, axis=axis)
+    h = h > ratio * np.mean(h)
+    h = [_ for _ in range(len(h)) if h[_] == 1]
+    h = [h[i] for i in range(len(h)) if i == 0 or i == len(h) - 1 or h[i] > h[i - 1] + gap]
+    print(h)
+    max_border = 0
+    for i in range(1, len(h)):
+        if h[i] - h[i - 1] > max_border:
+            max_border = h[i] - h[i - 1]
+            h_left = h[i - 1]
+            h_right = h[i]
+    return h_left, h_right
+
+
+# method: mean | otsu
+def bin_(img, method="mean", rate=0.9, bais=10):
+    hh, ww = img.shape
+
+    height = math.sqrt(hh / ww * (hh + ww))
+    width = ww / hh * height
+
+    mat = np.zeros((hh, ww))
+    for i in range(hh):
+        for j in range(ww):
+
+            h1 = i - int(height / 2)
+            h2 = i + int(height / 2)
+            w1 = j - int(width / 2)
+            w2 = j + int(width / 2)
+            if h1 < 0:
+                h1 = 0
+            if w1 < 0:
+                w1 = 0
+            if h2 >= hh:
+                h2 = hh - 1
+            if w2 >= ww:
+                w2 = ww - 1
+
+            if method == "mean":
+                mat[i, j] = np.mean(img[h1:h2, w1:w2]) + bais
+            elif method == "otsu":
+                mat[i, j], _ = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU)
+
+    mat[img < mat * rate] = 0
+    mat[mat != 0] = 255
+
+    return mat
+
 # randon

@@ -3,6 +3,7 @@ import sys
 import os
 import cv2
 from PIL import ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 sys.path.append(os.getcwd())
 from telephone import common
@@ -72,6 +73,13 @@ def run():
     cv2.destroyAllWindows()
 
 
+def genFontImage(font, char, image_size):
+    image = Image.new('1', image_size, color=0)
+    draw = ImageDraw.Draw(image)
+    draw.text((0, -5), char, font=font, fill='#FFFFFF')
+    image.save('temp.jpg')
+
+
 # 11,12,13
 def main_(file_path="../data/img/1.jpg"):
     img = read_(file_path, shrink=1)
@@ -85,8 +93,8 @@ def main_(file_path="../data/img/1.jpg"):
     # img = common.Remove_holes(img)
     cv2.imshow("chosen", img)
 
-    temp = hand_write.genFontImage(ImageFont.truetype('../data/font/simfang.ttf', 16), '8', (20, 10))
-    temp = common.canny_(temp)
+    genFontImage(ImageFont.truetype('../data/font/msyhbd.ttf', 22), '2', (14, 20))
+    temp = cv2.imread("temp.jpg")
     # temp = common.Remove_holes(temp)
 
     cv2.imshow("temp", temp)
