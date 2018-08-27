@@ -48,10 +48,7 @@ if __name__ == '__main__':
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
         data_, label_ = get_data(image_height=img_height, image_width=img_width)
         pred_ = predict_model(basemodel, data_)
-        res = label_-pred_
-        min_res = res[:,3:7]
+        res = label_ - pred_
+        min_res = res[:, 3:7]
         print(res)
         print(min_res)
-        
-
-        
