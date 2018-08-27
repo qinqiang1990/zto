@@ -39,7 +39,18 @@ def gen_hand_write(batch_size=32, n_len=11):
     x = np.zeros((batch_size, height, width, 1), dtype=np.uint8)
     y = np.zeros((batch_size, n_len), dtype=np.uint8)
     for i in range(batch_size):
-        number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
+        if i == 0:
+            number = "18852890100"
+        elif i == 1:
+            number = "17224537850"
+        elif i == 2:
+            number = "12643790432"
+        elif i == 3:
+            number = "53791628492"
+        elif i == 4:
+            number = "86412583568"
+        else:
+            number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
         random_text = "".join(number.astype(np.unicode))
         image_data = hand_write.get_img(str=random_text, run=True, font_path=None)
         image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
