@@ -97,10 +97,12 @@ def test_model(model, X_test, Y_test):
 
 #     print(decode_model_output(y_pred) - Y_test)
 
-
 if __name__ == '__main__':
 
-    gen_data.run(256 * 100)
+    new_data = int(mod_config.getConfig("train", "new_data"))
+    data_set = int(mod_config.getConfig("train", "data_set"))
+    if new_data:
+        gen_data.run(data_set)
 
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")

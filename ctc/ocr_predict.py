@@ -48,5 +48,5 @@ if __name__ == '__main__':
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
         data_, label_ = get_data(image_height=img_height, image_width=img_width)
         pred_ = predict_model(basemodel, data_)
-        print("label_:", label_.shape)
-        print("pred_:", pred_.shape)
+        print("label_:", label_)
+        print("pred_:", pred_)
