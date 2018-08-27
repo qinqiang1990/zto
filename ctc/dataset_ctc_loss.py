@@ -101,6 +101,7 @@ if __name__ == '__main__':
 
     new_data = int(mod_config.getConfig("train", "new_data"))
     data_set = int(mod_config.getConfig("train", "data_set"))
+    testing = int(mod_config.getConfig("train", "testing"))
     if new_data:
         gen_data.run(data_set)
 
@@ -144,7 +145,8 @@ if __name__ == '__main__':
 
     basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
 
-    test_model(basemodel, X_test, Y_test)
+    if testing:
+        test_model(basemodel, X_test, Y_test)
 
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
 
