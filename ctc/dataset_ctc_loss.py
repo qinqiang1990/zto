@@ -164,7 +164,7 @@ if __name__ == '__main__':
 
         model.save_weights(weight_file)
 
-        if times > epochs / batch_epochs:
+        if times >= epochs / batch_epochs:
             break
         print("cur_epochs:", batch_epochs * times, "epochs:", epochs)
         times = times + 1
