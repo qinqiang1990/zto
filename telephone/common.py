@@ -195,7 +195,7 @@ def grabCut_(img, newmask):
     return img, mask
 
 
-def template(img, temp):
+def template(img, temp, threshold=None):
     if len(img.shape) == 3:
         img_ = bgr2gray_(img)
     else:
@@ -206,9 +206,13 @@ def template(img, temp):
         temp_ = temp
     h, w = temp_.shape
 
-    # cv2.TM_CCOEFF, cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR_NORMED,cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED
-    method = cv2.TM_CCOEFF
+    # cv2.TM_CCORR, cv2.TM_CCORR_NORMED (max)
+    # cv2.TM_CCOEFF, cv2.TM_CCOEFF_NORMED (max)
+    # cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED (min)
+    method = cv2.TM_CCORR_NORMED
     res = cv2.matchTemplate(img_, temp_, method)
+    cv2.normalize(res, res, 0, 1, cv2.NORM_MINMAX)
+
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
     # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
@@ -220,17 +224,16 @@ def template(img, temp):
     bottom_right = (top_left[0] + w, top_left[1] + h)
     cv2.rectangle(img, top_left, bottom_right, 255, 2)
 
-    # # 设定阈值
-    # threshold = 0.8
-    # if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-    #     # min
-    #     threshold = 1 - threshold
-    #     loc = np.where(res <= threshold)
-    # else:
-    #     # max
-    #     loc = np.where(res >= threshold)
-    # for pt in zip(*loc[:: -1]):
-    #     cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), 249, 2)
+    if threshold is not None:
+        if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+            # min
+            threshold = 1 - threshold
+            loc = np.where(res <= threshold)
+        else:
+            # max
+            loc = np.where(res >= threshold)
+        for pt in zip(*loc[:: -1]):
+            cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), 249, 2)
     return img
 
 
@@ -312,6 +315,50 @@ def Remove_holes(thresh, AreaLimit=100):
                     label[pos[0], pos[1]] += check_result
 
     check_mode = 255
+    img = thresh.copy()
+    img[label == 2] = check_mode
+
+    return img
+
+
+# 去除小连通域
+def Removing_small_connected_domain(thresh, AreaLimit):
+    label = np.zeros_like(thresh)
+    label[thresh == 0] = 3
+
+    # 8 领域
+    NeihborPos = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+    h, w = thresh.shape[:2]
+    for i in range(h):
+        for j in range(w):
+
+            if label[i, j] == 0:
+                GrowBuffer = []
+                GrowBuffer.append((i, j))
+                label[i, j] = 1
+                k = 0
+                while k < len(GrowBuffer):
+                    cur = GrowBuffer[k]
+                    for pos in NeihborPos:
+                        cur_h = cur[0] + pos[0]
+                        cur_w = cur[1] + pos[1]
+                        if 0 <= cur_h < h and 0 <= cur_w < w:
+                            if label[cur_h, cur_w] == 0:
+                                GrowBuffer.append((cur_h, cur_w))
+                                label[cur_h, cur_w] = 1
+                    k = k + 1
+                # 判断结果（是否超出限定的大小），1为未超出，2为超出
+                if len(GrowBuffer) > AreaLimit:
+                    check_result = 2
+                else:
+                    check_result = 1
+
+                for pos in GrowBuffer:
+                    # 标记不合格的像素点，像素值为2
+                    label[pos[0], pos[1]] += check_result
+
+    check_mode = 0
     img = thresh.copy()
     img[label == 2] = check_mode
 

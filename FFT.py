@@ -79,7 +79,7 @@ def fourier(gray, method=None):
 
 if __name__ == '__main__':
     # 1、读取文件，灰度化
-    file_name = 'data/min_img/15.jpg'
+    file_name = 'data/min_img/5.jpg'
     img = cv.imread(file_name)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
