@@ -100,7 +100,7 @@ def test_model(model, X_test, Y_test):
 
 if __name__ == '__main__':
 
-    gen_data.gen_hand_write(256 * 100)
+    gen_data.run(256 * 100)
 
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")

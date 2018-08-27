@@ -60,10 +60,10 @@ def gen_hand_write(batch_size=32, n_len=11):
     return x, y
 
 
-if __name__ == '__main__':
+def run(batch_size=256 * 100):
     # batch_x, batch_y = gen(256*100)
 
-    batch_x, batch_y = gen_hand_write(256 * 100)
+    batch_x, batch_y = gen_hand_write(batch_size)
 
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[0])) + ".jpg", batch_x[0])
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[1])) + ".jpg", batch_x[1])
@@ -76,3 +76,7 @@ if __name__ == '__main__':
 
     np.save("ctc/X_train.npy", batch_x)
     np.save("ctc/Y_train.npy", batch_y)
+
+
+if __name__ == '__main__':
+    run(256 * 100)
