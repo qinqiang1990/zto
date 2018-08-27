@@ -19,28 +19,28 @@ def predict_model(model, input_):
     return output_
 
 
-if __name__ == '__main__':
-    IMAGE_HEIGHT = 20
-    IMAGE_WIDTH = 140
-    file_name = "data/cut/_2.jpg"
-    img = cv2.imread(file_name)
-    img = common.resize_(img, width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
-    img = common.bgr2gray_(img)
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+def get_data(path="data/cut/", image_height=20, image_width=140):
+    data = []
+    files = os.listdir(path)
+    for file in files:
+        file_path = os.path.join(path, file)
+        img = cv2.imread(file_path)
+        img = common.resize_(img, width=image_width, height=image_height)
+        img = common.bgr2gray_(img)
+        img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+        data.append(img[:, :, np.newaxis])
+    return data, None
 
-    weight_file = 'ctc/ocr_ctc_weights.h5'
+
+if __name__ == '__main__':
 
     model = ocr.build_network(image_width=None)
-    input_ = img[np.newaxis, :, :, np.newaxis]
 
+    weight_file = 'ctc/ocr_ctc_weights.h5'
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
-        output_ = predict_model(basemodel, input_)
+        input_, output_ = get_data()
+        pred_ = predict_model(basemodel, input_)
         print("input_:", input_.shape)
-        print("output_:", output_.shape)
-        print(output_[0])
-
-    cv2.imshow("image", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        print("pred_:", pred_.shape)
