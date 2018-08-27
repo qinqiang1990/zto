@@ -49,7 +49,7 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
     offset_height = random.randint(-5, 5)
     if random.randint(0, 1):
         offset_height = 0
-        degree = random.randint(-7, 7)  # 5、6、7
+        degree = random.randint(-5, 5)  # 5、6、7
         matRotation = cv2.getRotationMatrix2D((width / 2, height / 2), degree, 1)
         img = cv2.warpAffine(img, matRotation, (width, height), borderValue=(0, 0, 0))
     M = np.float32([[1, 0, offset_width], [0, 1, offset_height]])
