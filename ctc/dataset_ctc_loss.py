@@ -15,9 +15,9 @@ from ctc import gen_data
 MAX_CAPTCHA = 11
 CHAR_SET_LEN = 10
 
-nb_filters = 32
+nb_filters = 64
 pool_size = (2, 2)
-kernel_size = (3, 3)
+kernel_size = (5, 5)
 
 
 def ctc_lambda_func(args):
@@ -40,11 +40,11 @@ def build_network(image_height=140, image_width=20):
     x = MaxPooling2D(pool_size=pool_size, padding="same")(x)
 
     x = Permute((2, 1, 3))(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.1)(x)
     x = TimeDistributed(Flatten())(x)
 
     x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='concat')(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.1)(x)
     x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='sum')(x)
 
     y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
