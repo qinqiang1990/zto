@@ -15,7 +15,7 @@ from ctc import gen_data
 MAX_CAPTCHA = 11
 CHAR_SET_LEN = 10
 
-nb_filters = 64
+nb_filters = 32
 pool_size = (2, 2)
 kernel_size = (5, 5)
 
