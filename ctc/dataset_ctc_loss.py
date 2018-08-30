@@ -17,7 +17,7 @@ CHAR_SET_LEN = 10
 
 nb_filters = 32
 pool_size = (2, 2)
-kernel_size = (3, 3)
+kernel_size = (5, 5)
 
 
 def ctc_lambda_func(args):
