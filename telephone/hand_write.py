@@ -9,6 +9,18 @@ sys.path.append(os.getcwd())
 from telephone import common
 
 
+def deskew(img, szie=(8, 12)):
+    affine_flags = cv2.WARP_INVERSE_MAP | cv2.INTER_LINEAR
+
+    m = cv2.moments(img)
+    if abs(m['mu02']) < 1e-2:
+        return img.copy()
+    skew = m['mu11'] / m['mu02']
+    M = np.float32([[1, skew, -0.5 * 10 * skew], [0, 1, 0]])
+    img = cv2.warpAffine(img, M, szie, flags=affine_flags)
+    return img
+
+
 def genFontImage(font, char, image_size):
     image = Image.new('1', image_size, color=255)
     draw = ImageDraw.Draw(image)
@@ -44,6 +56,9 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
     images = np.hstack((left, images, right))
 
     img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
+
+    if random.randint(0, 1):
+        img = deskew(img, (width, height))
 
     offset_width = random.randint(-8, 8)
     offset_height = random.randint(-4, 4)
