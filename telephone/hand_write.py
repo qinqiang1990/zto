@@ -49,10 +49,10 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
             images = img
         else:
             images = np.hstack((images, img))
-    images = 255 - images
+    # images = 255 - images
 
-    left = np.zeros((images.shape[0], 8))
-    right = np.zeros((images.shape[0], 8))
+    left = np.ones((images.shape[0], 8)) * 255
+    right = np.ones((images.shape[0], 8)) * 255
     images = np.hstack((left, images, right))
 
     img = cv2.resize(images, (width, height), interpolation=cv2.INTER_AREA)
@@ -66,9 +66,9 @@ def get_img(str="188", path='data/template', run=False, font_path=None, height=2
         offset_height = 0
         degree = random.randint(-4, 4)  # 5、6、7
         matRotation = cv2.getRotationMatrix2D((width / 2, height / 2), degree, 1)
-        img = cv2.warpAffine(img, matRotation, (width, height), borderValue=(0, 0, 0))
+        img = cv2.warpAffine(img, matRotation, (width, height), borderValue=(255, 255, 255))
     M = np.float32([[1, 0, offset_width], [0, 1, offset_height]])
-    img = cv2.warpAffine(img, M, (width, height))
+    img = cv2.warpAffine(img, M, (width, height), borderValue=(255, 255, 255))
     # noise
     img = common.addGaussianNoise(img, 40, 20)  # 高斯噪声
     img = common.SaltAndPepper(img, 0.1)  # 再添加10%的椒盐噪声

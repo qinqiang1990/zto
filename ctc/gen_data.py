@@ -79,4 +79,4 @@ def run(batch_size=256 * 100):
 
 
 if __name__ == '__main__':
-    run(256 * 100)
+    run(100)

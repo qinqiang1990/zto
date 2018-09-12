@@ -5,7 +5,7 @@ import configparser
 
 def getConfig(section, key):
     config = configparser.ConfigParser()
-    path = 'config/configure.ini'
+    path = './config/configure.ini'
     config.read(path)
     return config.get(section, key)
 
