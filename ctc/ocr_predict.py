@@ -30,7 +30,7 @@ def get_data(path="data/cut/", image_height=32):
         img = cv2.resize(img, (int(w / h * image_height), image_height), interpolation=cv2.INTER_AREA)
         img = cv2.equalizeHist(img)
         # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
-        data = img[:, :, np.newaxis]
+        data = img[np.newaxis, :, :, np.newaxis]
         label = list(map(int, file.split('.')[0]))
         yield np.array(data), np.array(label)
 
