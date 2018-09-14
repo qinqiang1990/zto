@@ -88,6 +88,7 @@ def build_network(image_height=128, image_width=32):
 
     x = BatchNormalization()(gru2_merged)
 
+
     x = Dense(CHAR_SET_LEN + 1, kernel_initializer='he_normal')(x)
     y_pred = Activation('softmax', name='softmax')(x)
 
@@ -140,79 +141,78 @@ def test_model(model, X_test, Y_test):
 #     print(decode_model_output(y_pred) - Y_test)
 
 if __name__ == '__main__':
-    model = build_network(image_height=32, image_width=160)
 
-    # new_data = int(mod_config.getConfig("train", "new_data"))
-    # data_set = int(mod_config.getConfig("train", "data_set"))
-    # testing = int(mod_config.getConfig("train", "testing"))
-    #
-    # if new_data:
-    #     gen_data.run(data_set)
-    #
-    # X_train = np.load("ctc/X_train.npy")
-    # Y_train = np.load("ctc/Y_train.npy")
-    #
-    # weight_file = 'ctc/ocr_ctc_weights.h5'
-    #
-    # batch_size = 256
-    # verbose = 2
-    # test_size = int(X_train.shape[0] * 0.1)
-    #
-    # X_test = X_train[0:test_size, :, :, :]
-    # Y_test = Y_train[0:test_size, :]
-    #
-    # X_train = X_train[test_size:, :, :, :]
-    # Y_train = Y_train[test_size:, :]
-    #
-    # print("X_train:", X_train.shape)
-    # print("Y_train:", Y_train.shape)
-    #
-    # input_length = np.ones([X_train.shape[0], 1]) * int(mod_config.getConfig("train", "input_length"))
-    # label_length = np.ones([X_train.shape[0], 1]) * MAX_CAPTCHA
-    #
-    # inputs = {
-    #     'the_input': X_train,
-    #     'the_labels': Y_train,
-    #     'input_length': input_length,
-    #     'label_length': label_length
-    # }
-    #
-    # outputs = {'ctc': np.zeros([X_train.shape[0]])}
-    #
-    # img_height = int(mod_config.getConfig("train", "img_height"))
-    # img_width = int(mod_config.getConfig("train", "img_width"))
-    #
-    # model = build_network(image_height=img_height, image_width=img_width)
-    #
-    # if os.path.exists(weight_file):
-    #     model.load_weights(weight_file)
-    #
-    # if testing:
-    #     basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
-    #     test_model(basemodel, X_test, Y_test)
-    #
-    # early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
-    # checkpoint = ModelCheckpoint(filepath='LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
-    #                              monitor='loss', verbose=1, mode='min', period=1)
-    #
-    # model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
-    #
-    # times = 1
-    # while times:
-    #
-    #     epochs = int(mod_config.getConfig("train", "epochs"))
-    #     batch_epochs = int(mod_config.getConfig("train", "save_epochs"))
-    #
-    #     model.fit(inputs, outputs,
-    #               batch_size=batch_size,
-    #               epochs=batch_epochs,
-    #               callbacks=[checkpoint],
-    #               verbose=verbose,
-    #               validation_split=0.3)
-    #
-    #     model.save_weights(weight_file)
-    #
-    #     if times >= epochs / batch_epochs:
-    #         break
-    #     print("cur_epochs:", batch_epochs * times, "epochs:", epochs)
-    #     times = times + 1
+    new_data = int(mod_config.getConfig("train", "new_data"))
+    data_set = int(mod_config.getConfig("train", "data_set"))
+    testing = int(mod_config.getConfig("train", "testing"))
+
+    if new_data:
+        gen_data.run(data_set)
+
+    X_train = np.load("ctc/X_train.npy")
+    Y_train = np.load("ctc/Y_train.npy")
+
+    weight_file = 'ctc/ocr_ctc_weights.h5'
+
+    batch_size = 256
+    verbose = 2
+    test_size = int(X_train.shape[0] * 0.1)
+
+    X_test = X_train[0:test_size, :, :, :]
+    Y_test = Y_train[0:test_size, :]
+
+    X_train = X_train[test_size:, :, :, :]
+    Y_train = Y_train[test_size:, :]
+
+    print("X_train:", X_train.shape)
+    print("Y_train:", Y_train.shape)
+
+    input_length = np.ones([X_train.shape[0], 1]) * int(mod_config.getConfig("train", "input_length"))
+    label_length = np.ones([X_train.shape[0], 1]) * MAX_CAPTCHA
+
+    inputs = {
+        'the_input': X_train,
+        'the_labels': Y_train,
+        'input_length': input_length,
+        'label_length': label_length
+    }
+
+    outputs = {'ctc': np.zeros([X_train.shape[0]])}
+
+    img_height = int(mod_config.getConfig("train", "img_height"))
+    img_width = int(mod_config.getConfig("train", "img_width"))
+
+    model = build_network(image_height=img_height, image_width=img_width)
+
+    if os.path.exists(weight_file):
+        model.load_weights(weight_file)
+
+    if testing:
+        basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
+        test_model(basemodel, X_test, Y_test)
+
+    early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
+    checkpoint = ModelCheckpoint(filepath='LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
+                                 monitor='loss', verbose=1, mode='min', period=1)
+
+    model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
+
+    times = 1
+    while times:
+
+        epochs = int(mod_config.getConfig("train", "epochs"))
+        batch_epochs = int(mod_config.getConfig("train", "save_epochs"))
+
+        model.fit(inputs, outputs,
+                  batch_size=batch_size,
+                  epochs=batch_epochs,
+                  callbacks=[checkpoint],
+                  verbose=verbose,
+                  validation_split=0.3)
+
+        model.save_weights(weight_file)
+
+        if times >= epochs / batch_epochs:
+            break
+        print("cur_epochs:", batch_epochs * times, "epochs:", epochs)
+        times = times + 1
