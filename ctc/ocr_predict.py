@@ -42,7 +42,8 @@ if __name__ == '__main__':
 
     model = ocr.build_network(image_height=img_height, image_width=None)
 
-    weight_file = 'ctc/ocr_ctc_weights.h5'
+    weight_file = mod_config.getConfig("train", "weight_file")
+
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)

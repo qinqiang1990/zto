@@ -151,8 +151,6 @@ if __name__ == '__main__':
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")
 
-    weight_file = './checkpoint/ocr_ctc_weights.h5'
-
     test_size = int(X_train.shape[0] * 0.1)
 
     X_test = X_train[0:test_size, :, :, :]
@@ -181,6 +179,8 @@ if __name__ == '__main__':
 
     model = build_network(image_height=img_height, image_width=img_width)
 
+    weight_file = mod_config.getConfig("train", "weight_file")
+
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
 
@@ -202,5 +202,3 @@ if __name__ == '__main__':
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.3)
-
-    model.save_weights(weight_file)
