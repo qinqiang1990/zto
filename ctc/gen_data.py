@@ -40,7 +40,7 @@ def gen_hand_write(batch_size=32, n_len=11):
     for i in range(batch_size):
 
         if i == 0:
-            number = np.array([1, 5, 8, 0, 1, 8, 5, 2, 3, 2, 6])
+            number = np.array([1, 5, 8, 7, 1, 9, 5, 2, 3, 2, 6])
         elif i == 1:
             number = np.array([1, 7, 2, 2, 4, 5, 3, 7, 8, 5, 0])
         elif i == 2:
