@@ -210,7 +210,7 @@ if __name__ == '__main__':
                   verbose=verbose,
                   validation_split=0.3)
 
-        model.save_weights(weight_file)
+        # model.save_weights(weight_file)
 
         if times >= epochs / batch_epochs:
             break
