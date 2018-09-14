@@ -55,6 +55,9 @@ def gen_hand_write(batch_size=32, n_len=11):
         image_data = hand_write.get_img(str=random_text)
         # image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
         image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
+        print(image_data.shape)
+        print(image_data)
+
         image_data = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
         image_data = cv2.equalizeHist(image_data)
 
