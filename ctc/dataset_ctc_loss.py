@@ -192,7 +192,7 @@ if __name__ == '__main__':
         test_model(basemodel, X_test, Y_test)
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
-    checkpoint = ModelCheckpoint(filepath='./Checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
+    checkpoint = ModelCheckpoint(filepath='./checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
                                  monitor='loss', verbose=1, mode='min', period=10)
 
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
