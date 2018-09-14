@@ -88,7 +88,6 @@ def build_network(image_height=128, image_width=32):
 
     x = BatchNormalization()(gru2_merged)
 
-
     x = Dense(CHAR_SET_LEN + 1, kernel_initializer='he_normal')(x)
     y_pred = Activation('softmax', name='softmax')(x)
 
@@ -152,10 +151,8 @@ if __name__ == '__main__':
     X_train = np.load("ctc/X_train.npy")
     Y_train = np.load("ctc/Y_train.npy")
 
-    weight_file = 'ctc/ocr_ctc_weights.h5'
+    weight_file = './checkpoint/ocr_ctc_weights.h5'
 
-    batch_size = 256
-    verbose = 2
     test_size = int(X_train.shape[0] * 0.1)
 
     X_test = X_train[0:test_size, :, :, :]
@@ -193,26 +190,17 @@ if __name__ == '__main__':
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
     checkpoint = ModelCheckpoint(filepath='./checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
-                                 monitor='loss', verbose=1, mode='min', period=10)
+                                 monitor='loss', verbose=1, mode='min', period=5)
 
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
 
-    times = 1
-    while times:
+    epochs = int(mod_config.getConfig("train", "epochs"))
 
-        epochs = int(mod_config.getConfig("train", "epochs"))
-        batch_epochs = int(mod_config.getConfig("train", "save_epochs"))
+    model.fit(inputs, outputs,
+              batch_size=256,
+              epochs=epochs,
+              callbacks=[checkpoint],
+              verbose=2,
+              validation_split=0.3)
 
-        model.fit(inputs, outputs,
-                  batch_size=batch_size,
-                  epochs=batch_epochs,
-                  callbacks=[checkpoint],
-                  verbose=verbose,
-                  validation_split=0.3)
-
-        model.save_weights(weight_file)
-
-        if times >= epochs / batch_epochs:
-            break
-        print("cur_epochs:", batch_epochs * times, "epochs:", epochs)
-        times = times + 1
+    model.save_weights(weight_file)

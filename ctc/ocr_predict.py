@@ -45,7 +45,7 @@ if __name__ == '__main__':
     weight_file = 'ctc/ocr_ctc_weights.h5'
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
-        basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
+        basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
         data_, label_ = get_data(image_height=img_height, image_width=img_width)
         pred_ = predict_model(basemodel, data_)
         res = label_ - pred_
