@@ -48,7 +48,7 @@ if __name__ == '__main__':
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
-        data_, label_ = get_data(image_height=img_height, image_width=None)
+        data_, label_ = get_data(image_height=img_height)
         pred_ = predict_model(basemodel, data_)
         print("origin:")
         print(label_)
