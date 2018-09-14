@@ -64,12 +64,28 @@ def build_network(image_height=128, image_width=32):
 
     x = Permute((2, 1, 3))(x)
     x = TimeDistributed(Flatten())(x)
-    #
-    x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='sum')(x)
-    x = BatchNormalization()(x)
 
-    x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='concat')(x)
-    x = BatchNormalization()(x)
+    # x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='sum')(x)
+    # x = BatchNormalization()(x)
+    #
+    # x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='concat')(x)
+    # x = BatchNormalization()(x)
+
+    # RNN layer
+    gru_1a = GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal', name='gru_1a')(x)
+    gru_1b = GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal', name='gru_1b',
+                 go_backwards=True)(x)
+    gru_1merged = add([gru_1a, gru_1b])
+    x = BatchNormalization()(gru_1merged)
+
+    gru_2a = GRU(256, return_sequences=True, kernel_initializer='he_normal', name='gru_2a')(x)
+    gru_2b = GRU(256, return_sequences=True, kernel_initializer='he_normal', name='gru_2b',
+                 go_backwards=True)(x)
+
+    gru2_merged = concatenate([gru_2a + x, gru_2b + x])
+    # gru2_merged = concatenate([gru_2a, gru_2b])
+
+    x = BatchNormalization()(gru2_merged)
 
     x = Dense(CHAR_SET_LEN + 1, kernel_initializer='he_normal')(x)
     y_pred = Activation('softmax', name='softmax')(x)
