@@ -20,7 +20,7 @@ def predict_model(model, input_):
     return output_
 
 
-def get_data(path="data/ture_image/", image_height=32):
+def get_data(path="data/cut/", image_height=32):
     files = os.listdir(path)
     for file in files:
         file_path = os.path.join(path, file)
