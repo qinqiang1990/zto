@@ -57,7 +57,7 @@ def gen_hand_write(batch_size=32, n_len=11):
         image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
 
         image_data = image_data.astype(np.uint8)
-        image_data = cv2.equalizeHist(image_data)
+        # image_data = cv2.equalizeHist(image_data)
 
         x[i, :, :, 0] = image_data
         y[i] = number
