@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from keras import Model
-from keras.layers import Input, Dense, Flatten, Conv2D, Bidirectional, GRU, Lambda
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.layers import Input, Dense, Flatten, Conv2D, Bidirectional, GRU, Lambda, BatchNormalization, Activation, add, \
+    concatenate
 from keras.layers import MaxPooling2D, Permute, TimeDistributed, Dropout
 import keras.backend.tensorflow_backend as K
 import os
@@ -25,31 +27,52 @@ def ctc_lambda_func(args):
     return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
-def build_network(image_height=140, image_width=20):
+def build_network(image_height=128, image_width=32):
     hidden_unit = int(mod_config.getConfig("train", "hidden_unit"))
 
-    input = Input(shape=(image_height, image_width, 1), name='the_input')
+    inputs = Input(shape=(image_height, image_width, 1), name='the_input')
 
-    x = Conv2D(nb_filters * 1, kernel_size, activation='relu', padding="same")(input)
-    x = MaxPooling2D(pool_size=pool_size, padding="same")(x)
+    x = Conv2D(64, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C0")(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2), strides=2, name="P0")(x)
 
-    x = Conv2D(nb_filters * 2, kernel_size, activation='relu', padding="same")(x)
-    x = MaxPooling2D(pool_size=pool_size, padding="same")(x)
+    x = Conv2D(128, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C1")(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2), strides=2, name="P1")(x)
 
-    x = Conv2D(nb_filters * 3, kernel_size, activation='relu', padding="same")(x)
-    x = MaxPooling2D(pool_size=pool_size, padding="same")(x)
+    x = Conv2D(256, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C2")(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = Conv2D(256, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C3")(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 1), name="P2")(x)
+
+    x = Conv2D(512, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C4")(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = Conv2D(512, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C5")(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 1), name="P3")(x)
+
+    x = Conv2D(512, (2, 2), strides=1, padding="same", kernel_initializer='he_normal', name="C6")(x)  # padding="valid")
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
     x = Permute((2, 1, 3))(x)
-    x = Dropout(0.5)(x)
     x = TimeDistributed(Flatten())(x)
+    #
+    x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='sum')(x)
+    x = BatchNormalization()(x)
 
-    x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='concat')(x)
-    x = Dropout(0.5)(x)
-    x = Bidirectional(GRU(hidden_unit, return_sequences=True), merge_mode='sum')(x)
+    x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='concat')(x)
+    x = BatchNormalization()(x)
 
-    y_pred = Dense(CHAR_SET_LEN + 1, activation='softmax')(x)
-
-    basemodel = Model(inputs=input, outputs=y_pred)
+    x = Dense(CHAR_SET_LEN + 1, kernel_initializer='he_normal')(x)
+    y_pred = Activation('softmax', name='softmax')(x)
 
     labels = Input(name='the_labels', shape=[MAX_CAPTCHA], dtype='float32')
     input_length = Input(name='input_length', shape=[1], dtype='int64')
@@ -57,8 +80,10 @@ def build_network(image_height=140, image_width=20):
 
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
-    model = Model(inputs=[input, labels, input_length, label_length], outputs=loss_out)
+    model = Model(inputs=[inputs, labels, input_length, label_length], outputs=loss_out)
+
     model.summary()
+
     return model
 
 
@@ -102,6 +127,7 @@ if __name__ == '__main__':
     new_data = int(mod_config.getConfig("train", "new_data"))
     data_set = int(mod_config.getConfig("train", "data_set"))
     testing = int(mod_config.getConfig("train", "testing"))
+
     if new_data:
         gen_data.run(data_set)
 
@@ -143,10 +169,13 @@ if __name__ == '__main__':
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
 
-    basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('dense_1').output)
-
     if testing:
+        basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
         test_model(basemodel, X_test, Y_test)
+
+    early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
+    checkpoint = ModelCheckpoint(filepath='LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
+                                 monitor='loss', verbose=1, mode='min', period=1)
 
     model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer='adam')
 
@@ -159,6 +188,7 @@ if __name__ == '__main__':
         model.fit(inputs, outputs,
                   batch_size=batch_size,
                   epochs=batch_epochs,
+                  callbacks=[checkpoint],
                   verbose=verbose,
                   validation_split=0.3)
 

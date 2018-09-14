@@ -35,12 +35,12 @@ def gen(batch_size=32, n_len=11):
 
 
 def gen_hand_write(batch_size=32, n_len=11):
-    hand_write.run_()
     x = np.zeros((batch_size, height, width, 1), dtype=np.uint8)
     y = np.zeros((batch_size, n_len), dtype=np.uint8)
     for i in range(batch_size):
+
         if i == 0:
-            number = np.array([1, 8, 8, 5, 2, 8, 9, 0, 1, 0, 0])
+            number = np.array([1, 5, 8, 0, 1, 8, 5, 2, 3, 2, 6])
         elif i == 1:
             number = np.array([1, 7, 2, 2, 4, 5, 3, 7, 8, 5, 0])
         elif i == 2:
@@ -52,8 +52,8 @@ def gen_hand_write(batch_size=32, n_len=11):
         else:
             number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
         random_text = "".join(number.astype(np.unicode))
-        image_data = hand_write.get_img(str=random_text, run=True, font_path=None)
-        image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+        image_data = hand_write.get_img(str=random_text)
+        # image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
         image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
         x[i, :, :, 0] = image_data
         y[i] = number

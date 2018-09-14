@@ -4,7 +4,7 @@ import os
 import random
 
 # path = "1.jpg"
-path = "../roi.jpg"
+path = "image.jpg"
 
 
 def detection(img):

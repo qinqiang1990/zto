@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 import os
 
-path = "2.jpg"
+path = "image.jpg"
 
 
 def detection(img):

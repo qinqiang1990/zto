@@ -2,6 +2,8 @@
 import cv2
 import numpy as np
 import random
+import os
+import math
 
 
 # https://blog.csdn.net/u012936765/article/details/53200918
@@ -20,18 +22,15 @@ def addGaussianNoise(image, loc=30, scale=30):
 
 # 定义添加椒盐噪声的函数
 def SaltAndPepper(src, percetage):
-    SP_NoiseImg = src
-    SP_NoiseNum = int(percetage * src.shape[0] * src.shape[1])
-    for i in range(SP_NoiseNum):
+    NoiseNum = int(percetage * src.shape[0] * src.shape[1])
+    count = 0
+    while count < NoiseNum:
         randX = random.randint(0, src.shape[0] - 1)
         randY = random.randint(0, src.shape[1] - 1)
-
-        SP_NoiseImg[randX, randY] = 0
-        # if random.randint(0, 1) == 0:
-        #     SP_NoiseImg[randX, randY] = 0
-        # else:
-        #     SP_NoiseImg[randX, randY] = 255
-    return SP_NoiseImg
+        if src[randX, randY] == 0:
+            src[randX, randY] = 255
+            count = count + 1
+    return src
 
 
 def resize_(img, shrink=0.3, width=None, height=None):
@@ -113,10 +112,10 @@ def erode_(img, ksize=(3, 3)):
     return img
 
 
-def dilate_(img, ksize=(3, 3)):
+def dilate_(img, ksize=(3, 3), iterations=1):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize)
     # 膨胀
-    img = cv2.dilate(img, kernel)
+    img = cv2.dilate(img, kernel, iterations=iterations)
     return img
 
 
@@ -138,33 +137,32 @@ def findContours_(img, origin, draw=False):
 
 
 def boundingRect_(img, contours, draw=False, min_area=100 * 50):
-    x = y = w = h = 0
-    for tours in contours:
-        x_, y_, w_, h_ = cv2.boundingRect(tours)
-        if w_ * h_ >= min_area:
-            min_area = w_ * h_
-            x, y, w, h = x_, y_, w_, h_
-    if w * h == 0:
-        return None
+    tours = sorted(contours, key=cv2.contourArea, reverse=True)[0]
+    x, y, w, h = cv2.boundingRect(tours)
     if draw:
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255))
         cv2.imshow("boundingRect_", img)
-
-    region = img[y:y + h, x:x + w, :]
+    if len(img.shape) == 3:
+        region = img[y + 2:y + h - 2, x + 2:x + w - 2, :]
+    elif len(img.shape) == 2:
+        region = img[y + 2:y + h - 2, x + 2:x + w - 2]
     return region
 
 
 def minAreaRect_(img, contours, draw=False):
     tours = sorted(contours, key=cv2.contourArea, reverse=True)[0]
-
     x, y, w, h = cv2.boundingRect(tours)
-    region = img[y:y + h, x:x + w, :]
+    if len(img.shape) == 3:
+        region = img[y + 2:y + h - 2, x + 2:x + w - 2, :]
+    elif len(img.shape) == 2:
+        region = img[y + 2:y + h - 2, x + 2:x + w - 2]
 
     # 中心（x，y），（宽度，高度），旋转角度）
     rect = cv2.minAreaRect(tours)
     box = np.int0(cv2.boxPoints(rect))
     if draw:
-        cv2.drawContours(img, [box], -1, (0, 255, 0), 2)
+        cv2.drawContours(img, [box], -1, (0, 0, 0), 2)
+        cv2.namedWindow('minAreaRect_', cv2.WINDOW_NORMAL)
         cv2.imshow("minAreaRect_", img)
 
     # 仿射变换、透视变换
@@ -236,41 +234,6 @@ def template(img, temp, threshold=None):
             loc = np.where(res >= threshold)
         for pt in zip(*loc[:: -1]):
             cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), 249, 2)
-    return img
-
-
-def hough_lines_p_(edges, img):
-    """
-    :param edges:边缘
-    :param img: 图片
-    :return: img
-    """
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=50, maxLineGap=10)
-    for line in lines:
-        x1, y1, x2, y2 = line[0]
-        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-    return img
-
-
-def hough_lines_(edges, img):
-    lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
-    for line in lines:
-        rho = line[0][0]  # 第一个元素是距离rho
-        theta = line[0][1]  # 第二个元素是角度theta
-        if (theta < (np.pi / 4.)) or (theta > (3. * np.pi / 4.0)):  # 垂直直线
-            # 该直线与第一行的交点
-            pt1 = (int(rho / np.cos(theta)), 0)
-            # 该直线与最后一行的焦点
-            pt2 = (int((rho - img.shape[0] * np.sin(theta)) / np.cos(theta)), img.shape[0])
-            # 绘制一条白线
-            cv2.line(img, pt1, pt2, (255))
-        else:  # 水平直线
-            # 该直线与第一列的交点
-            pt1 = (0, int(rho / np.sin(theta)))
-            # 该直线与最后一列的交点
-            pt2 = (img.shape[1], int((rho - img.shape[1] * np.cos(theta)) / np.sin(theta)))
-            # 绘制一条直线
-            cv2.line(img, pt1, pt2, (255), 1)
     return img
 
 
@@ -389,38 +352,120 @@ def border(area, ratio=0.85, gap=100, axis=1):
     return h_left, h_right
 
 
-# method: mean | otsu
-def bin_(img, method="mean", rate=0.9, bais=10):
-    hh, ww = img.shape
-
-    height = math.sqrt(hh / ww * (hh + ww))
-    width = ww / hh * height
-
-    mat = np.zeros((hh, ww))
-    for i in range(hh):
-        for j in range(ww):
-
-            h1 = i - int(height / 2)
-            h2 = i + int(height / 2)
-            w1 = j - int(width / 2)
-            w2 = j + int(width / 2)
-            if h1 < 0:
-                h1 = 0
-            if w1 < 0:
-                w1 = 0
-            if h2 >= hh:
-                h2 = hh - 1
-            if w2 >= ww:
-                w2 = ww - 1
-
-            if method == "mean":
-                mat[i, j] = np.mean(img[h1:h2, w1:w2]) + bais
-            elif method == "otsu":
-                mat[i, j], _ = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU)
-
-    mat[img < mat * rate] = 0
-    mat[mat != 0] = 255
-
-    return mat
-
 # randon
+def find_lines(img, acc_threshold=0.25, should_erode=True):
+    if len(img.shape) == 3 and img.shape[2] == 3:  # if it's color
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    img = cv2.GaussianBlur(img, (11, 11), 0)
+    img = cv2.adaptiveThreshold(
+        img,
+        255,
+        cv2.ADAPTIVE_THRESH_MEAN_C,
+        cv2.THRESH_BINARY,
+        5,
+        2)
+
+    img = cv2.bitwise_not(img)
+
+    # thresh = 127
+    # edges = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY)[1]
+    # edges = cv2.Canny(blur, 500, 500, apertureSize=3)
+
+    if should_erode:
+        element = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
+        img = cv2.erode(img, element)
+
+    theta = np.pi / 2000
+    angle_threshold = 2
+    horizontal = cv2.HoughLines(
+        img,
+        1,
+        theta,
+        int(acc_threshold * img.shape[1]),
+        min_theta=np.radians(90 - angle_threshold),
+        max_theta=np.radians(90 + angle_threshold))
+    vertical = cv2.HoughLines(
+        img,
+        1,
+        theta,
+        int(acc_threshold * img.shape[0]),
+        min_theta=np.radians(-angle_threshold),
+        max_theta=np.radians(angle_threshold),
+    )
+
+    horizontal = list(horizontal) if horizontal is not None else []
+    vertical = list(vertical) if vertical is not None else []
+
+    horizontal = [line[0] for line in horizontal]
+    vertical = [line[0] for line in vertical]
+
+    horizontal = np.asarray(horizontal)
+    vertical = np.asarray(vertical)
+
+    return horizontal, vertical
+
+
+def roate(edges, gray, angle_threshold=30):
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=int(0.3 * edges.shape[1]),
+                            minLineLength=50, maxLineGap=100)
+    thetas = []
+    coordinate = []
+
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        angle = math.atan2(y1 - y2, x1 - x2) * 180 / np.pi
+        if -180 < angle < -180 + angle_threshold or 180 - angle_threshold < angle < 180:
+            cv2.line(gray, (x1, y1), (x2, y2), (200, 0, 0), 2)
+            thetas.append(angle)
+            coordinate.append((y1 + y2) / 2)
+
+    rotate_angle = np.mean(thetas)
+    center = np.mean(coordinate)
+
+    if rotate_angle > 0:
+        rotate_angle = -180 + rotate_angle
+    elif rotate_angle < 0:
+        rotate_angle = 180 + rotate_angle
+
+    if center > 1.1 * gray.shape[0] / 2:
+        rotate_angle += 180
+    h, w = gray.shape[:2]
+    center = (w / 2, h / 2)
+    M = cv2.getRotationMatrix2D(center, rotate_angle, 1.0)
+    rotated = cv2.warpAffine(gray, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    return rotated
+
+
+def hough_lines_p_(edges, img):
+    """
+    :param edges:边缘
+    :param img: 图片
+    :return: img
+    """
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=50, maxLineGap=10)
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    return img
+
+
+def hough_lines_(edges, img):
+    lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
+    for line in lines:
+        rho = line[0][0]  # 第一个元素是距离rho
+        theta = line[0][1]  # 第二个元素是角度theta
+        if (theta < (np.pi / 4.)) or (theta > (3. * np.pi / 4.0)):  # 垂直直线
+            # 该直线与第一行的交点
+            pt1 = (int(rho / np.cos(theta)), 0)
+            # 该直线与最后一行的焦点
+            pt2 = (int((rho - img.shape[0] * np.sin(theta)) / np.cos(theta)), img.shape[0])
+            # 绘制一条白线
+            cv2.line(img, pt1, pt2, (255))
+        else:  # 水平直线
+            # 该直线与第一列的交点
+            pt1 = (0, int(rho / np.sin(theta)))
+            # 该直线与最后一列的交点
+            pt2 = (img.shape[1], int((rho - img.shape[1] * np.cos(theta)) / np.sin(theta)))
+            # 绘制一条直线
+            cv2.line(img, pt1, pt2, (255), 1)
+    return img

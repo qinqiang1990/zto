@@ -62,7 +62,7 @@ def fourier(gray, method=None):
         angle = theta / number - 180
         print(angle)
         center = (w / 2, h / 2)
-        M = cv.getRotationMatrix2D(center, angle, 1.0)
+        M = cv.getRotationMatrix2D(center, 2*angle, 1.0)
         rotated = cv.warpAffine(gray, M, (w, h), flags=cv.INTER_CUBIC, borderMode=cv.BORDER_REPLICATE)
     if method == VERTICAL:
         angle = theta / number
@@ -73,19 +73,16 @@ def fourier(gray, method=None):
     cv.imshow('gray', gray)
     cv.imshow('line image', lineimg)
     cv.imshow('rotated', rotated)
-    cv.imwrite("rotated.jpg", rotated)
     return rotated
 
 
 if __name__ == '__main__':
     # 1、读取文件，灰度化
-    file_name = 'data/min_img/5.jpg'
+    file_name = '218221961132_0.jpg'
     img = cv.imread(file_name)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     gray = fourier(gray, method=HORIZONTAL)
-    # gray = fourier(gray, method=VERTICAL)
-    cv.imwrite(file_name, gray)
 
     cv.waitKey(0)
     cv.destroyAllWindows()

@@ -1,6 +1,4 @@
-import numpy as np
 import cv2
-import FFT
 import telephone.common as common
 
 img = cv2.imread('roi.jpg')

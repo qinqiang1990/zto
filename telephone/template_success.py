@@ -84,8 +84,8 @@ def genFontImage(font, char, image_size):
 # 11,12,13
 def main_(file_path="../data/img/1_1.jpg"):
     img = read_(file_path, shrink=1)
-    img = cut_(img)
-    img = roi_(img)
+    # img = cut_(img)
+    # img = roi_(img)
 
     if img.shape[0] * img.shape[1] > 400 * 400:
         img = chosen(img)
