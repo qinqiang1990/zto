@@ -197,7 +197,7 @@ if __name__ == '__main__':
     epochs = int(mod_config.getConfig("train", "epochs"))
 
     model.fit(inputs, outputs,
-              batch_size=1024,
+              batch_size=256,
               epochs=epochs,
               callbacks=[checkpoint],
               verbose=2,
