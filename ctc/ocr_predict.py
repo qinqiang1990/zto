@@ -17,6 +17,7 @@ def predict_model(model, input_):
     shape = pred_[:, :, :].shape
     ctc_decode = K.ctc_decode(pred_[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
     output_ = K.get_value(ctc_decode)[:, :ocr.MAX_CAPTCHA]
+#     output_ = K.get_value(ctc_decode)
     return output_
 
 
