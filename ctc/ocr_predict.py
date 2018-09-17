@@ -16,12 +16,12 @@ def predict_model(model, input_):
     pred_ = model.predict(input_)
     shape = pred_[:, :, :].shape
     ctc_decode = K.ctc_decode(pred_[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
-    output_ = K.get_value(ctc_decode)[:, :ocr.MAX_CAPTCHA]
-#     output_ = K.get_value(ctc_decode)
+    output_ = K.get_value(ctc_decode)
+    # return output_[:, :ocr.MAX_CAPTCHA]
     return output_
 
 
-def get_data(path="./data/cut/", image_height=32):
+def get_data(path="./data/cut/", image_height=32, equalize=1):
     files = os.listdir(path)
     for file in files:
         file_path = os.path.join(path, file)
@@ -30,8 +30,8 @@ def get_data(path="./data/cut/", image_height=32):
         h, w = img.shape[:2]
 
         img = cv2.resize(img, (int(w / h * image_height), image_height), interpolation=cv2.INTER_AREA)
-
-        img = cv2.equalizeHist(img)
+        if equalize == 1:
+            img = cv2.equalizeHist(img)
 
         data = img[np.newaxis, :, :, np.newaxis]
         label = list(map(int, file.split('.')[0]))
@@ -42,6 +42,7 @@ def get_data(path="./data/cut/", image_height=32):
 if __name__ == '__main__':
 
     img_height = int(mod_config.getConfig("train", "img_height"))
+    equalize = int(mod_config.getConfig("train", "equalize"))
 
     model = ocr.build_network(image_height=img_height, image_width=None)
 
@@ -50,10 +51,8 @@ if __name__ == '__main__':
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
-        for data_, label_ in get_data(path="./data/true_image/", image_height=img_height):
+        for data_, label_ in get_data(path="./data/true_image/", image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
             print("==============================")
             print("orig:", label_)
             print("pred:", pred_[0])
-
-

@@ -34,7 +34,7 @@ def gen(batch_size=32, n_len=11):
     return x, y
 
 
-def gen_hand_write(batch_size=32, n_len=11):
+def gen_hand_write(batch_size=32, n_len=11, equalize=1):
     x = np.zeros((batch_size, height, width, 1), dtype=np.uint8)
     y = np.zeros((batch_size, n_len), dtype=np.uint8)
     for i in range(batch_size):
@@ -53,21 +53,20 @@ def gen_hand_write(batch_size=32, n_len=11):
             number = np.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], n_len)
         random_text = "".join(number.astype(np.unicode))
         image_data = hand_write.get_img(str=random_text)
-        # image_data = cv2.adaptiveThreshold(image_data, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
-        image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
 
+        image_data = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
         image_data = image_data.astype(np.uint8)
-        image_data = cv2.equalizeHist(image_data)
+        if equalize == 1:
+            image_data = cv2.equalizeHist(image_data)
 
         x[i, :, :, 0] = image_data
         y[i] = number
     return x, y
 
 
-def run(batch_size=256 * 100):
-    # batch_x, batch_y = gen(256*100)
+def run(batch_size=256 * 100, equalize=1):
 
-    batch_x, batch_y = gen_hand_write(batch_size)
+    batch_x, batch_y = gen_hand_write(batch_size, equalize)
 
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[0])) + ".jpg", batch_x[0])
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[1])) + ".jpg", batch_x[1])
@@ -89,7 +88,6 @@ def run(batch_size=256 * 100):
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[17])) + ".jpg", batch_x[17])
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[18])) + ".jpg", batch_x[18])
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[19])) + ".jpg", batch_x[19])
-    cv2.imwrite("data/cut/" + "".join(map(str, batch_y[20])) + ".jpg", batch_x[20])
 
     print(batch_x.shape)
     print(batch_y.shape)

@@ -42,7 +42,7 @@ def bin_(img, method="mean", rate=0.9, bais=10):
     return mat
 
 
-path = "data/cut/"
+path = "data/true_image/"
 files = os.listdir(path)
 i = 1
 plt.figure()
@@ -51,13 +51,19 @@ for file in files:
     img = cv2.imread(file_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    img = cv2.equalizeHist(img)
+
+
     # _, img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
     # _, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU)
     # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, -10)
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+
+    # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+
     # img = bin_(img, method="mean", rate=0.9, bais=5)
     plt.subplot(4, 5, i)
     plt.title(file)
     plt.imshow(img)
+    cv2.imwrite("./data/"+ str(i)+".jpg",img)
     i = i + 1
 plt.show()

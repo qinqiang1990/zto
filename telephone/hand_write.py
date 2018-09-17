@@ -36,9 +36,9 @@ def run_(font_size=12, image_size=(10, 20), font_path='data/font/simfang.ttf', c
         image.save("data/template/" + str(hans.index(han)) + '.png')
 
 
-def enhance(img):
+def fuse_bg(img):
     # img = cv2.filter2D(img, -1, np.array([[0, 1 / 4, 0], [1 / 4, 0, 1 / 4], [0, 1 / 4, 0]]))
-    img[img > 220] = 220
+    img[img > 200] = 200
     img = cv2.blur(img, (3, 3))
     return img
 
@@ -98,8 +98,8 @@ def get_img(str="188", path='data/template', height=20, width=140):
     img = cv2.warpAffine(img, M, (width, height), borderValue=(255, 255, 255))
 
     # noise
-    # img = common.SaltAndPepper(img, 0.0)  # 再添加10%的椒盐噪声
-    img = enhance(img)
+    # img = common.SaltAndPepper(img, 0.6)  # 再添加10%的椒盐噪声
+    img = fuse_bg(img)
 
     return img
 
