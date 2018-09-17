@@ -27,11 +27,15 @@ def get_data(path="./data/cut/", image_height=32):
         img = cv2.imread(file_path)
         img = common.bgr2gray_(img)
         h, w = img.shape[:2]
+
         img = cv2.resize(img, (int(w / h * image_height), image_height), interpolation=cv2.INTER_AREA)
+
         img = cv2.equalizeHist(img)
         # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 9, -10)
+
         data = img[np.newaxis, :, :, np.newaxis]
         label = list(map(int, file.split('.')[0]))
+
         yield np.array(data), np.array(label)
 
 
@@ -46,11 +50,11 @@ if __name__ == '__main__':
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
-        for data_, label_ in get_data(image_height=img_height):
+        for data_, label_ in get_data(path="./data/true_image", image_height=img_height):
             pred_ = predict_model(basemodel, data_)
             print("==============================")
-            print("origin:", label_)
-            print("predict:", pred_)
+            print("orig:", label_)
+            print("pred:", pred_[0])
 
         # res = label_ - pred_
         # min_res = res[:, 3:7]
