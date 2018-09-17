@@ -65,8 +65,7 @@ def gen_hand_write(batch_size=32, n_len=11, equalize=1):
 
 
 def run(batch_size=256 * 100, equalize=1):
-
-    batch_x, batch_y = gen_hand_write(batch_size, equalize)
+    batch_x, batch_y = gen_hand_write(batch_size, equalize=equalize)
 
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[0])) + ".jpg", batch_x[0])
     cv2.imwrite("data/cut/" + "".join(map(str, batch_y[1])) + ".jpg", batch_x[1])
