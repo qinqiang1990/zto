@@ -98,7 +98,7 @@ def get_img(str="188", path='data/template', height=20, width=140):
     img = cv2.warpAffine(img, M, (width, height), borderValue=(255, 255, 255))
 
     # noise
-    # img = common.SaltAndPepper(img, 0.6)  # 再添加10%的椒盐噪声
+    img = common.SaltAndPepper(img, 0.6)  # 再添加10%的椒盐噪声
     img = fuse_bg(img)
 
     return img
