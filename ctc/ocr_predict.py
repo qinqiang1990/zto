@@ -35,8 +35,8 @@ def get_data(path="./data/cut/", image_height=32):
 
         data = img[np.newaxis, :, :, np.newaxis]
         label = list(map(int, file.split('.')[0]))
-        cv2.imshow(file, img)
-        cv2.waitKey()
+        # cv2.imshow(file, img)
+        # cv2.waitKey()
         yield np.array(data), np.array(label)
 
 
