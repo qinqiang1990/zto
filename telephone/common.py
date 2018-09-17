@@ -23,7 +23,6 @@ def addGaussianNoise(image, loc=30, scale=30):
 # 定义添加椒盐噪声的函数
 def SaltAndPepper(src, percetage):
     num_ = np.sum(src < 100)
-    print(num_)
     coor = np.random.choice(list(range(num_)), int(percetage * num_), replace=False)
     xy = np.where(src < 100)
     for randX, randY in zip(xy[0][coor], xy[1][coor]):
