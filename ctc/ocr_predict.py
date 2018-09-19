@@ -51,6 +51,8 @@ if __name__ == '__main__':
 
     weight_file = mod_config.getConfig("train", "weight_file")
     path = "../text-detection-ctpn/data/data_bak/"
+    # path="./data/true_image/"
+    # path = "./data/cut/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output,
