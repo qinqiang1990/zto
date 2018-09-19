@@ -51,7 +51,6 @@ for file in files:
     img = cv2.imread(file_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    img = cv2.equalizeHist(img)
 
 
     # _, img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
@@ -64,6 +63,5 @@ for file in files:
     plt.subplot(4, 5, i)
     plt.title(file)
     plt.imshow(img)
-    cv2.imwrite("./data/"+ str(i)+".jpg",img)
     i = i + 1
 plt.show()

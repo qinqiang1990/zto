@@ -38,8 +38,33 @@ def run_(font_size=12, image_size=(10, 20), font_path='data/font/simfang.ttf', c
 
 def fuse_bg(img):
     # img = cv2.filter2D(img, -1, np.array([[0, 1 / 4, 0], [1 / 4, 0, 1 / 4], [0, 1 / 4, 0]]))
-    img[img > 200] = 200
+
+    h, w = img.shape[:2]
+    bg_path = ["data/fuse_bg/120514411790_1032.jpg", "data/fuse_bg/218428588707_1704.jpg",
+               "data/fuse_bg/218428588707_1705.jpg", "data/fuse_bg/218583980807_2071.jpg"]
+
+    bg_index = random.randint(0, 6)
+
+    if bg_index >= len(bg_path):
+        img[img > 200] = 200
+    else:
+        bg = cv2.imread(bg_path[bg_index])
+        bg = cv2.resize(bg, (w, h), interpolation=cv2.INTER_AREA)
+        bg = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
+        bg_split = np.ones_like(bg)
+
+        h_split = random.randint(1, h - 2)
+        bg_split[0:h_split, :] = bg[(h - h_split):, :]
+        bg_split[h_split:, :] = bg[0:(h - h_split), :]
+
+        w_split = random.randint(1, w - 2)
+        bg_split[:, 0:w_split] = bg[:, (w - w_split):]
+        bg_split[:, w_split:] = bg[:, 0:(w - w_split)]
+
+        img[img > 200] = bg_split[img > 200]
+
     img = cv2.blur(img, (3, 3))
+
     return img
 
 
@@ -89,7 +114,7 @@ def get_img(str="188", path='data/template', height=20, width=140):
         img = deskew(img, (width, height))
 
     if random.randint(0, 2):
-        degree = random.randint(-10, 10) / 10
+        degree = random.randint(-20, 20) / 10
         matRotation = cv2.getRotationMatrix2D((width / 2, height / 2), degree, 1)
         img = cv2.warpAffine(img, matRotation, (width, height), borderValue=(255, 255, 255))
 

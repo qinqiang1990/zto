@@ -21,12 +21,13 @@ def predict_model(model, input_):
     return output_
 
 
-def get_data(path="./data/cut/", image_height=32, equalize=1):
+def get_data(path="./data/true_image/", image_height=32, equalize=1):
     files = os.listdir(path)
     for file in files:
         file_path = os.path.join(path, file)
-        img = cv2.imread(file_path)
-        img = common.bgr2gray_(img)
+        origin = cv2.imread(file_path)
+
+        img = common.bgr2gray_(origin)
         h, w = img.shape[:2]
 
         img = cv2.resize(img, (int(w / h * image_height), image_height), interpolation=cv2.INTER_AREA)
@@ -34,9 +35,11 @@ def get_data(path="./data/cut/", image_height=32, equalize=1):
             img = cv2.equalizeHist(img)
 
         data = img[np.newaxis, :, :, np.newaxis]
-        label = list(map(int, file.split('.')[0]))
+        label = list(map(int, file.split('.')[0].split('_')[0]))
 
-        yield np.array(data), np.array(label)
+        # cv2.imshow("img", img)
+        # cv2.waitKey()
+        yield np.array(data), np.array(label), origin, file_path
 
 
 if __name__ == '__main__':
@@ -47,12 +50,19 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-
+    path = "../text-detection-ctpn/data/data_bak/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
-        basemodel = Model(inputs=model.get_layer('the_input').output, outputs=model.get_layer('softmax').output)
-        for data_, label_ in get_data(path="./data/true_image/", image_height=img_height, equalize=equalize):
+        basemodel = Model(inputs=model.get_layer('the_input').output,
+                          outputs=model.get_layer('softmax').output)
+        for data_, label_, img, file_path in get_data(path=path, image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
             print("==============================")
             print("orig:", label_)
             print("pred:", pred_[0])
+            # if len(label_) < 5:
+            #     img_name = "".join(map(str, pred_[0]))
+            #     img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
+            #     cv2.imwrite(img_name, img)
+            #     os.remove(file_path)
+            #     print(img_name)
