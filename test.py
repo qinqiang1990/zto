@@ -24,7 +24,7 @@ for file in files:
         for _ in os.listdir(file_path):
             im_path = os.path.join(file_path, _)
             img = cv2.imread(im_path)
-            if 240 < img.shape[1] <= 280:
+            if 240 < img.shape[1] <= 250:
                 img_name = save_path + file + "_" + str(i) + ".jpg"
                 cv2.imwrite(img_name, img)
                 print(img_name)
