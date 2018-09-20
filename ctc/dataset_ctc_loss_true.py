@@ -205,6 +205,7 @@ if __name__ == '__main__':
 
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
+        test_model(model, X_test, Y_test)
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
     checkpoint = ModelCheckpoint(filepath='./checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
@@ -221,3 +222,4 @@ if __name__ == '__main__':
               verbose=2,
               validation_split=0.3)
 
+    test_model(model, X_test, Y_test)
