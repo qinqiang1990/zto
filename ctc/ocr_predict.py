@@ -5,7 +5,12 @@ import cv2
 import keras.backend.tensorflow_backend as K
 from keras import Model
 import numpy as np
+import logging
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='[%Y-%m_%d %H:%M:%S]',
+                    filename='log_module.log')
 sys.path.append(os.getcwd())
 from telephone import common
 import ctc.dataset_ctc_loss as ocr
@@ -64,13 +69,14 @@ if __name__ == '__main__':
             pred_ = predict_model(basemodel, data_)
 
             if np.sum(label_ == pred_[0]) < 10:
-                print("==============================")
-                print("orig:", label_)
-                print("pred:", pred_[0])
+                logging.info("==============================")
+                logging.info("orig:" + "".join(map(str, label_)))
+                logging.info("pred:" + "".join(map(str, pred_[0])))
 
             if np.sum(label_ == pred_[0]) == len(label_):
                 pos = pos + 1
             count = count + 1
+        logging.info("acc:" + str(pos / count))
         print("acc:", pos / count)
         # if len(label_) < 5:
         #     img_name = "".join(map(str, pred_[0]))
