@@ -169,6 +169,8 @@ if __name__ == '__main__':
     height = int(mod_config.getConfig("train", "img_height"))
     width = int(mod_config.getConfig("train", "img_width"))
 
+    MAX_CAPTCHA = MAX_CAPTCHA + 1
+
     X_train, Y_train = get_data(path="data/true_image", equalize=equalize, label_length=MAX_CAPTCHA)
     print("X_train:", X_train.shape)
     print("Y_train:", Y_train.shape)
