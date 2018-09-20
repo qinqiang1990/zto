@@ -50,21 +50,29 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-    path = "../text-detection-ctpn/data/data_bak/"
-    # path="./data/true_image/"
+    #path = "../text-detection-ctpn/data/data_bak/"
+    path="./data/true_image/"
     # path = "./data/cut/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output,
                           outputs=model.get_layer('softmax').output)
+
+        count = 0
+        pos = 0
         for data_, label_, img, file_path in get_data(path=path, image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
             print("==============================")
             print("orig:", label_)
             print("pred:", pred_[0])
-            # if len(label_) < 5:
-            #     img_name = "".join(map(str, pred_[0]))
-            #     img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
-            #     cv2.imwrite(img_name, img)
-            #     os.remove(file_path)
-            #     print(img_name)
+
+            if np.sum(label_ == pred_[0]) == len(label_):
+                pos = pos + 1
+            count = count + 1
+        print("acc:", pos / count)
+        # if len(label_) < 5:
+        #     img_name = "".join(map(str, pred_[0]))
+        #     img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
+        #     cv2.imwrite(img_name, img)
+        #     os.remove(file_path)
+        #     print(img_name)

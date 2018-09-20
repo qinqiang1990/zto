@@ -169,7 +169,18 @@ if __name__ == '__main__':
     height = int(mod_config.getConfig("train", "img_height"))
     width = int(mod_config.getConfig("train", "img_width"))
 
+    MAX_CAPTCHA = MAX_CAPTCHA + 1
+
     X_train, Y_train = get_data(path="data/true_image", equalize=equalize, label_length=MAX_CAPTCHA)
+
+    test_size = int(X_train.shape[0] * 0.1)
+
+    X_test = X_train[0:test_size, :, :, :]
+    Y_test = Y_train[0:test_size, :]
+
+    X_train = X_train[test_size:, :, :, :]
+    Y_train = Y_train[test_size:, :]
+
     print("X_train:", X_train.shape)
     print("Y_train:", Y_train.shape)
 
@@ -194,6 +205,7 @@ if __name__ == '__main__':
 
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
+        test_model(model, X_test, Y_test)
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
     checkpoint = ModelCheckpoint(filepath='./checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
@@ -209,3 +221,5 @@ if __name__ == '__main__':
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.3)
+
+    test_model(model, X_test, Y_test)
