@@ -50,8 +50,8 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-    path = "../text-detection-ctpn/data/data_bak/"
-    # path="./data/true_image/"
+    #path = "../text-detection-ctpn/data/data_bak/"
+    path="./data/true_image/"
     # path = "./data/cut/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
@@ -66,7 +66,7 @@ if __name__ == '__main__':
             print("orig:", label_)
             print("pred:", pred_[0])
 
-            if np.sum(label_ == pred_[0]) > 10:
+            if np.sum(label_ == pred_[0]) == len(label_):
                 pos = pos + 1
             count = count + 1
         print("acc:", pos / count)
