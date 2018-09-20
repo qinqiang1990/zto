@@ -129,17 +129,17 @@ def test_model(model, X_test, Y_test):
     print("Y_test:", Y_test.shape)
 
     y_pred = model.predict(X_test)
-    shape = y_pred[:, :, :].shape
+    #shape = y_pred[:, :, :].shape
 
-    ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
-    out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
+    #ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
+    #out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
+    
+    #accur = np.sum(abs(out - Y_test), axis=1)
+    #accur_score = len(accur[accur == 0]) * 1.0 / len(accur)
+    #print("accur_score:", accur_score)
 
-    accur = np.sum(abs(out - Y_test), axis=1)
-    accur_score = len(accur[accur == 0]) * 1.0 / len(accur)
-    print("accur_score:", accur_score)
 
-
-#     print(decode_model_output(y_pred) - Y_test)
+    print(decode_model_output(y_pred) - Y_test)
 
 def get_data(path="data/true_image/", equalize=1, label_length=11):
     files = os.listdir(path)
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
     X_train, Y_train = get_data(path="data/true_image", equalize=equalize, label_length=MAX_CAPTCHA)
 
-    test_size = int(X_train.shape[0] * 0.1)
+    test_size = int(X_train.shape[0] * 0.01)
 
     X_test = X_train[0:test_size, :, :, :]
     Y_test = Y_train[0:test_size, :]
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
-        test_model(model, X_test, Y_test)
+    #    test_model(model, X_test, Y_test)
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
     checkpoint = ModelCheckpoint(filepath='./checkpoint/LSTM+BN5--{epoch:02d}--{val_loss:.3f}.hdf5',
@@ -222,4 +222,4 @@ if __name__ == '__main__':
               verbose=2,
               validation_split=0.3)
 
-    test_model(model, X_test, Y_test)
+   # test_model(model, X_test, Y_test)
