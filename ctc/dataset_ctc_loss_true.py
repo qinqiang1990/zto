@@ -172,6 +172,15 @@ if __name__ == '__main__':
     MAX_CAPTCHA = MAX_CAPTCHA + 1
 
     X_train, Y_train = get_data(path="data/true_image", equalize=equalize, label_length=MAX_CAPTCHA)
+
+    test_size = int(X_train.shape[0] * 0.1)
+
+    X_test = X_train[0:test_size, :, :, :]
+    Y_test = Y_train[0:test_size, :]
+
+    X_train = X_train[test_size:, :, :, :]
+    Y_train = Y_train[test_size:, :]
+
     print("X_train:", X_train.shape)
     print("Y_train:", Y_train.shape)
 
@@ -211,3 +220,4 @@ if __name__ == '__main__':
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.3)
+
