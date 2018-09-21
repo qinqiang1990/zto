@@ -5,7 +5,12 @@ import cv2
 import keras.backend.tensorflow_backend as K
 from keras import Model
 import numpy as np
+import logging
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='[%Y-%m_%d %H:%M:%S]',
+                    filename='log_module.log')
 sys.path.append(os.getcwd())
 from telephone import common
 import ctc.dataset_ctc_loss as ocr
@@ -50,8 +55,8 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-    #path = "../text-detection-ctpn/data/data_bak/"
-    path="./data/true_image/"
+    # path = "../text-detection-ctpn/data/data_bak/"
+    path = "./data/true_image/"
     # path = "./data/cut/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
@@ -62,13 +67,16 @@ if __name__ == '__main__':
         pos = 0
         for data_, label_, img, file_path in get_data(path=path, image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
-            print("==============================")
-            print("orig:", label_)
-            print("pred:", pred_[0])
+
+            if np.sum(label_ == pred_[0]) < 10:
+                logging.info("==============================")
+                logging.info("orig:" + "".join(map(str, label_)))
+                logging.info("pred:" + "".join(map(str, pred_[0])))
 
             if np.sum(label_ == pred_[0]) == len(label_):
                 pos = pos + 1
             count = count + 1
+        logging.info("acc:" + str(pos / count))
         print("acc:", pos / count)
         # if len(label_) < 5:
         #     img_name = "".join(map(str, pred_[0]))
