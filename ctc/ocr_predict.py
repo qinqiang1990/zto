@@ -73,19 +73,20 @@ if __name__ == '__main__':
             # cv2.imwrite(img_name, img)
             # os.remove(file_path)
             # print(img_name)
-            print(type(label_))
             
             orig_ = "".join(map(str, label_))
             pred_ = "".join(map(str, pred_[0]))
-            print("==============================")
+            print("====================")
             print("orig:" + orig_)
             print("pred:" + pred_)
             if pred_[0].find(orig_) == -1:
-                logging.error("==============================")
+                print("==========ERROR==========")
+                logging.error("==========ERROR==========")
                 logging.error("orig:" + orig_)
                 logging.error("pred:" + pred_)
             else:
-                logging.info("==============================")
+                print("==========INFO==========")
+                logging.info("==========INFO==========")
                 logging.info("orig:" + orig_)
                 logging.info("pred:" + pred_)
                 pos = pos + 1
