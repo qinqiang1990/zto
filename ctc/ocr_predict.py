@@ -68,18 +68,18 @@ if __name__ == '__main__':
         for data_, label_, img, file_path in get_data(path=path, image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
 
-            # img_name = "".join(map(str, pred_[0]))
-            # img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
-            # cv2.imwrite(img_name, img)
-            # os.remove(file_path)
-            # print(img_name)
-            
             orig_ = "".join(map(str, label_))
             pred_ = "".join(map(str, pred_[0]))
             print("====================")
             print("orig:" + orig_)
             print("pred:" + pred_)
-            if pred_[0].find(orig_) == -1:
+
+            # img_name = path + pred_ + "_" + str(np.random.randint(0, 100)) + ".jpg"
+            # cv2.imwrite(img_name, img)
+            # os.remove(file_path)
+            # print(img_name)
+
+            if pred_.find(orig_) == -1:
                 print("==========ERROR==========")
                 logging.error("==========ERROR==========")
                 logging.error("orig:" + orig_)
