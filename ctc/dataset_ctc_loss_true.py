@@ -10,11 +10,8 @@ from keras.layers import MaxPooling2D, Permute, TimeDistributed, Dropout
 import keras.backend.tensorflow_backend as K
 import os
 import sys
-
 sys.path.append(os.getcwd())
-
 from config import mod_config
-from ctc import gen_data
 
 MAX_CAPTCHA = 11
 CHAR_SET_LEN = 10
@@ -169,7 +166,7 @@ if __name__ == '__main__':
     height = int(mod_config.getConfig("train", "img_height"))
     width = int(mod_config.getConfig("train", "img_width"))
 
-    MAX_CAPTCHA = MAX_CAPTCHA + 1
+    MAX_CAPTCHA = MAX_CAPTCHA
 
     X_train, Y_train = get_data(path="data/true_image", equalize=equalize, label_length=MAX_CAPTCHA)
 
@@ -220,6 +217,6 @@ if __name__ == '__main__':
               epochs=epochs,
               callbacks=[checkpoint],
               verbose=2,
-              validation_split=0.3)
+              validation_split=0.2)
 
    # test_model(model, X_test, Y_test)

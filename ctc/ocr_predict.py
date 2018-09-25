@@ -55,7 +55,7 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-    # path = "../text-detection-ctpn/data/data_bak/"
+    # path = "../text-detection-ctpn/data/data/"
     path = "./data/true_image/"
     # path = "./data/cut/"
     if os.path.exists(weight_file):
@@ -68,19 +68,23 @@ if __name__ == '__main__':
         for data_, label_, img, file_path in get_data(path=path, image_height=img_height, equalize=equalize):
             pred_ = predict_model(basemodel, data_)
 
-            if np.sum(label_ == pred_[0]) < 10:
+            if np.sum(label_ == pred_[0]) != len(label_):
                 logging.info("==============================")
+                print("==============================")
                 logging.info("orig:" + "".join(map(str, label_)))
+                print("orig:" + "".join(map(str, label_)))
                 logging.info("pred:" + "".join(map(str, pred_[0])))
+                print("pred:" + "".join(map(str, pred_[0])))
 
             if np.sum(label_ == pred_[0]) == len(label_):
                 pos = pos + 1
             count = count + 1
+
+            # if len(pred_[0]) != 0:
+            #     img_name = "".join(map(str, pred_[0]))
+            #     img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
+            #     cv2.imwrite(img_name, img)
+            #     os.remove(file_path)
+            #     print(img_name)
         logging.info("acc:" + str(pos / count))
         print("acc:", pos / count)
-        # if len(label_) < 5:
-        #     img_name = "".join(map(str, pred_[0]))
-        #     img_name = path + img_name + "_" + str(np.random.randint(0, 100)) + ".jpg"
-        #     cv2.imwrite(img_name, img)
-        #     os.remove(file_path)
-        #     print(img_name)
