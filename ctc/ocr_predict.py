@@ -85,10 +85,6 @@ if __name__ == '__main__':
                 logging.error("orig:" + orig_)
                 logging.error("pred:" + pred_)
             else:
-                print("==========INFO==========")
-                logging.info("==========INFO==========")
-                logging.info("orig:" + orig_)
-                logging.info("pred:" + pred_)
                 pos = pos + 1
             count = count + 1
 

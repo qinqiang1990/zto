@@ -48,6 +48,7 @@ def build_network(image_height=128, image_width=32):
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(2, 1), name="P2")(x)
+    x = Dropout(0.5)(x)
 
     x = Conv2D(512, (3, 3), strides=1, padding="same", kernel_initializer='he_normal', name="C4")(x)
     x = BatchNormalization()(x)
@@ -62,6 +63,7 @@ def build_network(image_height=128, image_width=32):
     x = Activation('relu')(x)
 
     x = Permute((2, 1, 3))(x)
+    x = Dropout(0.5)(x)
     x = TimeDistributed(Flatten())(x)
 
     # x = Bidirectional(GRU(hidden_unit, return_sequences=True, kernel_initializer='he_normal'), merge_mode='sum')(x)
@@ -76,6 +78,7 @@ def build_network(image_height=128, image_width=32):
                  go_backwards=True)(x)
     gru_1merged = add([gru_1a, gru_1b])
     x = BatchNormalization()(gru_1merged)
+    x = Dropout(0.5)(x)
 
     gru_2a = GRU(256, return_sequences=True, kernel_initializer='he_normal', name='gru_2a')(x)
     gru_2b = GRU(256, return_sequences=True, kernel_initializer='he_normal', name='gru_2b',
