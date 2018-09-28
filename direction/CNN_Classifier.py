@@ -99,9 +99,9 @@ def train(path="data/", h=32, w=160):
     model = build_network(image_height=h, image_width=w)
     model.load_weights("checkpoint/CNN.hdf5")
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-   
+
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
- 
+
     checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
                                  monitor='loss', verbose=1, mode='min', period=5)
 
@@ -121,12 +121,12 @@ def predict(path="data/", h=32, w=160):
 
     model = build_network(image_height=h, image_width=w)
     model.load_weights("checkpoint/CNN.hdf5")
-    
+
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
     scores = model.evaluate(x_test,y_test,verbose=0)
 
     res = model.predict(x_test)
-    
+
     true_num = 0
     num = len(res)
     for i in range(num):
