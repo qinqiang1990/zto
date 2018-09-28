@@ -21,6 +21,7 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
+
 def get_data(path, h=32, w=160):
     data = []
     label = []

@@ -15,6 +15,7 @@ if __name__ == "__main__":
     clf = joblib.load('clf.pkl')
     res = clf.predict(x_test)
 
+
     true_num = 0
     num = len(res)
     for i in range(num):

@@ -9,6 +9,7 @@ if __name__ == "__main__":
     print(data.shape)
     print(label.shape)
 
+
     param_range = ['identity', 'logistic', 'tanh', 'relu']
 
     train_score, test_score = validation_curve(
