@@ -4,24 +4,10 @@ import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.externals import joblib
 from sklearn.model_selection import train_test_split
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.layers import Input, Dense, Flatten, Conv2D, Bidirectional, GRU
-from keras.layers import Lambda, BatchNormalization, Activation, add, concatenate
-from keras.layers import MaxPooling2D, Permute, TimeDistributed, Dropout
-import keras.backend.tensorflow_backend as K
-from keras.models import Sequential
-from keras import Model
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D
-from keras.layers.convolutional import MaxPooling2D
-from keras.layers.core import Activation
-from keras.layers.core import Flatten
-from keras.layers.core import Dropout
-from keras.layers.core import Dense
-from keras import backend as K
 
 
 def get_data(path, h=32, w=160):
+    print("============",path,"===========")
     data = []
     label = []
     name = []
@@ -77,7 +63,7 @@ def train(path="data/", h=32, w=160):
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
 
-    clf = joblib.load('clf.pkl')
+    clf = joblib.load('checkpoint/clf.pkl')
     res = clf.predict(x_test)
 
     true_num = 0
@@ -94,7 +80,7 @@ def predict(path="data/", h=32, w=160):
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
 
-    clf = joblib.load('clf.pkl')
+    clf = joblib.load('checkpoint/clf.pkl')
     res = clf.predict(x_test)
 
     true_num = 0
@@ -112,4 +98,4 @@ if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
     train(path="data/", h=32, w=160)
-    predict(path='test/')
+    predict(path='test/', h=32, w=160)

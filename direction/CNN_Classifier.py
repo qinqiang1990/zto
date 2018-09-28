@@ -22,6 +22,7 @@ from keras import backend as K
 
 
 def get_data(path, h=32, w=160):
+    print("==========",path,"==========")
     data = []
     label = []
     name = []
@@ -96,16 +97,17 @@ def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w)
 
     model = build_network(image_height=h, image_width=w)
-    model.compile(loss="categorical_crossentropy", optimizer='adam',
-                  metrics=["accuracy"])
-
+    model.load_weights("checkpoint/CNN.hdf5")
+    model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+   
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
+ 
     checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
                                  monitor='loss', verbose=1, mode='min', period=5)
 
     model.fit(data, label,
               batch_size=256,
-              epochs=50,
+              epochs=20,
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.2)
@@ -118,23 +120,27 @@ def predict(path="data/", h=32, w=160):
     print("y_test:", y_test.shape)
 
     model = build_network(image_height=h, image_width=w)
-    model.load_weights("CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
+    
+    model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+    scores = model.evaluate(x_test,y_test,verbose=0)
 
     res = model.predict(x_test)
-
+    
     true_num = 0
     num = len(res)
     for i in range(num):
-        if np.sum(res[i] == y_test[i]) == len(y_test[i]):
+        if np.argmax(res[i]) == np.argmax(y_test[i]):
             true_num = true_num + 1
         else:
-            print(name[i], "true:", y_test[i], "pred:", res[i])
+            print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+    print("scores:",scores)
 
 
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    train(path="data/", h=32, w=160)
-    predict(path='test/', h=32, w=160)
+    #train(path="data/", h=32, w=160)
+    predict(path='data_cut/', h=32, w=160)
