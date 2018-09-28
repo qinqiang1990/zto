@@ -40,7 +40,7 @@ def get_data(path="./data/true_image/", image_height=32, equalize=1):
             img = cv2.equalizeHist(img)
 
         data = img[np.newaxis, :, :, np.newaxis]
-        label = list(map(int, file.split('.')[0].split('_')[0]))
+        label = list(map(int, file.replace(" ", "").split('.')[0].split('_')[0]))
 
         # cv2.imshow("img", img)
         # cv2.waitKey()
@@ -55,9 +55,9 @@ if __name__ == '__main__':
     model = ocr.build_network(image_height=img_height, image_width=None)
 
     weight_file = mod_config.getConfig("train", "weight_file")
-    # path = "../text-detection-ctpn/data/data/"
+    path = "../text-detection-ctpn/data/data/"
     # path = "./data/true_image/"
-    path = "./data/test/"
+    # path = "./data/test/"
     if os.path.exists(weight_file):
         model.load_weights(weight_file)
         basemodel = Model(inputs=model.get_layer('the_input').output,
@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 print("==========ERROR==========")
                 print("orig:" + orig_)
                 print("pred:" + pred_)
-		
+
                 logging.error("==========ERROR==========")
                 logging.error("orig:" + orig_)
                 logging.error("pred:" + pred_)
