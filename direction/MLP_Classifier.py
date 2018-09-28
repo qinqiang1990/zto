@@ -41,7 +41,7 @@ def get_data(path, h=32, w=160):
 def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w)
 
-    x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
+    x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.1)
 
     print("x_train:", x_train.shape)
     print("y_train:", y_train.shape)
@@ -52,7 +52,7 @@ def train(path="data/", h=32, w=160):
     clf = MLPClassifier(hidden_layer_sizes=(200,), learning_rate_init=0.01,
                         activation="relu", solver='adam', max_iter=200)
     clf.fit(x_train, y_train)
-    joblib.dump(clf, "clf.pkl")
+    joblib.dump(clf, "checkpoint/clf.pkl")
 
     res = clf.predict(x_train)
     true_num = 0

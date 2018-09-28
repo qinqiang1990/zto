@@ -143,4 +143,4 @@ if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
     #train(path="data/", h=32, w=160)
-    predict(path='data_cut/', h=32, w=160)
+    predict(path='test/', h=32, w=160)
