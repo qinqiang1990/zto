@@ -21,7 +21,6 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
-
 def get_data(path, h=32, w=160):
     data = []
     label = []
@@ -43,8 +42,8 @@ def get_data(path, h=32, w=160):
             M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
             rotated = cv2.warpAffine(img, M, (w, h))
 
-            # data.append(rotated.reshape(1, -1)[0, :])
-            data.append(rotated[:, :, np.newaxis])
+            data.append(rotated.reshape(1, -1)[0, :])
+            # data.append(rotated[:, :, np.newaxis])
             name.append(file)
 
     data = np.array(data)
@@ -53,99 +52,64 @@ def get_data(path, h=32, w=160):
     return data, label, name
 
 
-def build_network(image_height=128, image_width=32):
-    inputs = Input(shape=(image_height, image_width, 1), name='the_input')
-    x = Conv2D(32, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(inputs)
-    x = Activation('relu')(x)
-    x = BatchNormalization()(x)
-    x = MaxPooling2D(pool_size=(3, 3), strides=2)(x)
-    x = Dropout(0.25)(x)
+def train(path="data/", h=32, w=160):
+    data, label, _ = get_data(path=path, h=h, w=w)
 
-    x = Conv2D(64, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
-    x = BatchNormalization()(x)
-    x = Conv2D(64, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
-    x = BatchNormalization()(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Dropout(0.25)(x)
+    x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
 
-    x = Conv2D(128, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
-    x = BatchNormalization()(x)
-    x = Conv2D(128, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
-    x = BatchNormalization()(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Dropout(0.25)(x)
+    print("x_train:", x_train.shape)
+    print("y_train:", y_train.shape)
 
-    x = Flatten()(x)
-    x = Dense(1024)(x)
-    x = Activation("relu")(x)
-    x = BatchNormalization()(x)
-    x = Dropout(0.5)(x)
+    print("x_test:", x_test.shape)
+    print("y_test:", y_test.shape)
 
-    x = Dense(2)(x)
-    x = Activation("softmax")(x)
+    clf = MLPClassifier(hidden_layer_sizes=(200,), learning_rate_init=0.01,
+                        activation="relu", solver='adam', max_iter=200)
+    clf.fit(x_train, y_train)
+    joblib.dump(clf, "clf.pkl")
 
-    model = Model(inputs=inputs, outputs=x)
-    model.summary()
-    return model
+    res = clf.predict(x_train)
+    true_num = 0
+    num = len(res)
+    for i in range(num):
+        if np.sum(res[i] == y_train[i]) == len(y_train[i]):
+            true_num = true_num + 1
+
+    print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+
+    clf = joblib.load('clf.pkl')
+    res = clf.predict(x_test)
+
+    true_num = 0
+    num = len(res)
+    for i in range(num):
+        if np.sum(res[i] == y_test[i]) == len(y_test[i]):
+            true_num = true_num + 1
+    print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+
+
+def predict(path="data/", h=32, w=160):
+    x_test, y_test, name = get_data(path=path, h=h, w=w)
+
+    print("x_test:", x_test.shape)
+    print("y_test:", y_test.shape)
+
+    clf = joblib.load('clf.pkl')
+    res = clf.predict(x_test)
+
+    true_num = 0
+    num = len(res)
+    for i in range(num):
+        if np.sum(res[i] == y_test[i]) == len(y_test[i]):
+            true_num = true_num + 1
+        else:
+            print(name[i], "true:", y_test[i], "pred:", res[i])
+
+    print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
 
 
 if __name__ == "__main__":
-    h = 32
-    w = 160
-    path = "data/"
-    data, label, _ = get_data(path=path, h=h, w=w)
-
-    model = build_network(image_height=h, image_width=w)
-    model.compile(loss="categorical_crossentropy", optimizer='adam',
-                  metrics=["accuracy"])
-
-    early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
-    checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
-                                 monitor='loss', verbose=1, mode='min', period=5)
-
-    model.fit(data, label,
-              batch_size=256,
-              epochs=50,
-              callbacks=[checkpoint],
-              verbose=2,
-              validation_split=0.2)
-
-    # x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.1)
-    #
-    # print("x_train:", x_train.shape)
-    # print("y_train:", y_train.shape)
-    #
-    # print("x_test:", x_test.shape)
-    # print("y_test:", y_test.shape)
-    #
-    # clf = MLPClassifier(hidden_layer_sizes=(500,), learning_rate_init=0.01,
-    #                     activation="relu", solver='adam', max_iter=200)
-    # clf.fit(x_train, y_train)
-    # joblib.dump(clf, "clf.pkl")
-    #
-    # res = clf.predict(x_train)
-    # true_num = 0
-    # num = len(res)
-    # for i in range(num):
-    #     if np.sum(res[i] == y_train[i]) == len(y_train[i]):
-    #         true_num = true_num + 1
-    #     else:
-    #         print("true:", y_train[i], "pred:", res[i])
-    #
-    # print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
-    #
-    # clf = joblib.load('clf.pkl')
-    # res = clf.predict(x_test)
-    #
-    # true_num = 0
-    # num = len(res)
-    # for i in range(num):
-    #     if np.sum(res[i] == y_test[i]) == len(y_test[i]):
-    #         true_num = true_num + 1
-    #     else:
-    #         print("true:", y_test[i], "pred:", res[i])
-    # print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+    # path = "test/"
+    # path = "data_cut/"
+    train(path="data/", h=32, w=160)
+    predict(path='test/')

@@ -21,7 +21,6 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
-
 def get_data(path, h=32, w=160):
     data = []
     label = []
@@ -93,10 +92,7 @@ def build_network(image_height=128, image_width=32):
     return model
 
 
-if __name__ == "__main__":
-    h = 32
-    w = 160
-    path = "data/"
+def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w)
 
     model = build_network(image_height=h, image_width=w)
@@ -114,38 +110,31 @@ if __name__ == "__main__":
               verbose=2,
               validation_split=0.2)
 
-    # x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.1)
-    #
-    # print("x_train:", x_train.shape)
-    # print("y_train:", y_train.shape)
-    #
-    # print("x_test:", x_test.shape)
-    # print("y_test:", y_test.shape)
-    #
-    # clf = MLPClassifier(hidden_layer_sizes=(500,), learning_rate_init=0.01,
-    #                     activation="relu", solver='adam', max_iter=200)
-    # clf.fit(x_train, y_train)
-    # joblib.dump(clf, "clf.pkl")
-    #
-    # res = clf.predict(x_train)
-    # true_num = 0
-    # num = len(res)
-    # for i in range(num):
-    #     if np.sum(res[i] == y_train[i]) == len(y_train[i]):
-    #         true_num = true_num + 1
-    #     else:
-    #         print("true:", y_train[i], "pred:", res[i])
-    #
-    # print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
-    #
-    # clf = joblib.load('clf.pkl')
-    # res = clf.predict(x_test)
-    #
-    # true_num = 0
-    # num = len(res)
-    # for i in range(num):
-    #     if np.sum(res[i] == y_test[i]) == len(y_test[i]):
-    #         true_num = true_num + 1
-    #     else:
-    #         print("true:", y_test[i], "pred:", res[i])
-    # print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+
+def predict(path="data/", h=32, w=160):
+    x_test, y_test, name = get_data(path=path, h=h, w=w)
+
+    print("x_test:", x_test.shape)
+    print("y_test:", y_test.shape)
+
+    model = build_network(image_height=h, image_width=w)
+    model.load_weights("CNN.hdf5")
+
+    res = model.predict(x_test)
+
+    true_num = 0
+    num = len(res)
+    for i in range(num):
+        if np.sum(res[i] == y_test[i]) == len(y_test[i]):
+            true_num = true_num + 1
+        else:
+            print(name[i], "true:", y_test[i], "pred:", res[i])
+
+    print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
+
+
+if __name__ == "__main__":
+    # path = "test/"
+    # path = "data_cut/"
+    train(path="data/", h=32, w=160)
+    predict(path='test/', h=32, w=160)
