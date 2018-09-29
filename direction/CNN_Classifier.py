@@ -56,33 +56,33 @@ def get_data(path, h=32, w=160):
 def build_network(image_height=128, image_width=32):
     inputs = Input(shape=(image_height, image_width, 1), name='the_input')
     x = Conv2D(32, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(inputs)
-    x = Activation('relu')(x)
     x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(3, 3), strides=2)(x)
     x = Dropout(0.5)(x)
 
     x = Conv2D(64, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
     x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = Conv2D(64, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
     x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.5)(x)
 
     x = Conv2D(128, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
     x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = Conv2D(128, (3, 3), strides=1, padding="same", kernel_initializer='he_normal')(x)
-    x = Activation('relu')(x)
     x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.5)(x)
 
     x = Flatten()(x)
     x = Dense(1024)(x)
-    x = Activation("relu")(x)
     x = BatchNormalization()(x)
+    x = Activation("relu")(x)
     x = Dropout(0.5)(x)
 
     x = Dense(2)(x)
@@ -107,10 +107,10 @@ def train(path="data/", h=32, w=160):
 
     model.fit(data, label,
               batch_size=256,
-              epochs=50,
+              epochs=20,
               callbacks=[checkpoint],
               verbose=2,
-              validation_split=0.2)
+              validation_split=0.3)
 
 
 def predict(path="data/", h=32, w=160):
@@ -140,7 +140,7 @@ def predict(path="data/", h=32, w=160):
 
 
 if __name__ == "__main__":
-    # path = "test/"
-    # path = "data_cut/"
-    train(path="data/", h=32, w=160)
-    predict(path='test/', h=32, w=160)
+#     path = "test/"
+#     path = "data_cut/"
+    train(path="test/", h=32, w=160)
+    predict(path='data/', h=32, w=160)
