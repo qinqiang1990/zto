@@ -36,21 +36,17 @@ def get_data(path, h=32, w=160):
 
             if angle == 0:
                 label.append([1, 0])
-                label.append([1, 0])
                 M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
 
             elif angle == 180:
-                label.append([0, 1])
                 label.append([0, 1])
                 M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
 
             temp = cv2.warpAffine(img, M, (w_, h_))
             temp = cv2.equalizeHist(temp)
-            # temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
+            temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
             # data.append(temp.reshape(1, -1)[0, :])
-            data.append(temp[:, :w, np.newaxis])
-            data.append(temp[:, -w:, np.newaxis])
-            name.append(file)
+            data.append(temp[:, :, np.newaxis])
             name.append(file)
 
     data = np.array(data)
@@ -86,7 +82,7 @@ def build_network(image_height=128, image_width=32):
     x = Dropout(0.5)(x)
 
     x = Flatten()(x)
-    x = Dense(1024)(x)
+    x = Dense(512)(x)
     x = BatchNormalization()(x)
     x = Activation("relu")(x)
     x = Dropout(0.5)(x)
@@ -101,19 +97,21 @@ def build_network(image_height=128, image_width=32):
 
 def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w)
-
+    print(data.shape)
+    print(label.shape)
+    
     model = build_network(image_height=h, image_width=w)
-    model.load_weights("checkpoint/CNN.hdf5")
+#     model.load_weights("checkpoint/CNN.hdf5")
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
 
     checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
-                                 monitor='loss', verbose=1, mode='min', period=5)
+                                 monitor='loss', verbose=1, mode='min', period=10)
 
     model.fit(data, label,
               batch_size=256,
-              epochs=20,
+              epochs=2000,
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.3)
@@ -126,7 +124,7 @@ def predict(path="data/", h=32, w=160):
     print("y_test:", y_test.shape)
 
     model = build_network(image_height=h, image_width=w)
-    model.load_weights("checkpoint/CNN.hdf5")
+#     model.load_weights("checkpoint/CNN.hdf5")
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
     scores = model.evaluate(x_test, y_test, verbose=0)

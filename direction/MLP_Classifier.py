@@ -15,6 +15,8 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
+        if h_ > 400:
+            continue
         for angle in [0, 180]:
 
             if angle == 0:
@@ -98,4 +100,4 @@ if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
     train(path="test/", h=32, w=160)
-    predict(path='test/', h=32, w=160)
+    predict(path='data/', h=32, w=160)
