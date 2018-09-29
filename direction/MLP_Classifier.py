@@ -49,7 +49,7 @@ def train(path="data/", h=32, w=160):
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
 
-    clf = MLPClassifier(hidden_layer_sizes=(200,), learning_rate_init=0.01,
+    clf = MLPClassifier(hidden_layer_sizes=(500,), learning_rate_init=0.01,
                         activation="relu", solver='adam', max_iter=200)
     clf.fit(x_train, y_train)
     joblib.dump(clf, "checkpoint/clf.pkl")
@@ -97,5 +97,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    train(path="data/", h=32, w=160)
+    train(path="test/", h=32, w=160)
     predict(path='test/', h=32, w=160)
