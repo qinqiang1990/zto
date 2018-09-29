@@ -82,7 +82,7 @@ def build_network(image_height=128, image_width=32):
     x = Dropout(0.5)(x)
 
     x = Flatten()(x)
-    x = Dense(512)(x)
+    x = Dense(1024)(x)
     x = BatchNormalization()(x)
     x = Activation("relu")(x)
     x = Dropout(0.5)(x)
@@ -101,13 +101,13 @@ def train(path="data/", h=32, w=160):
     print(label.shape)
     
     model = build_network(image_height=h, image_width=w)
-#     model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
 
     checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
-                                 monitor='loss', verbose=1, mode='min', period=10)
+                                 monitor='loss', verbose=1, mode='min', period=5)
 
     model.fit(data, label,
               batch_size=256,
@@ -124,7 +124,7 @@ def predict(path="data/", h=32, w=160):
     print("y_test:", y_test.shape)
 
     model = build_network(image_height=h, image_width=w)
-#     model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
     scores = model.evaluate(x_test, y_test, verbose=0)
@@ -146,5 +146,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     #     path = "test/"
     #     path = "data_cut/"
-    train(path="test/", h=32, w=160)
+#     train(path="test/", h=32, w=160)
     predict(path='data/', h=32, w=160)
