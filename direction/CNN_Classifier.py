@@ -21,7 +21,7 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
-def get_data(path, h=32, w=160):
+def get_data(path, h=32, w=160, is_all=0):
     print("==========", path, "==========")
     data = []
     label = []
@@ -30,7 +30,7 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
-        if h_ > 400:
+        if is_all==0 and h_ > 400:
             continue
         for angle in [0, 180]:
 
@@ -82,7 +82,7 @@ def build_network(image_height=128, image_width=32):
     x = Dropout(0.5)(x)
 
     x = Flatten()(x)
-    x = Dense(512)(x)
+    x = Dense(1024)(x)
     x = BatchNormalization()(x)
     x = Activation("relu")(x)
     x = Dropout(0.5)(x)
@@ -96,18 +96,18 @@ def build_network(image_height=128, image_width=32):
 
 
 def train(path="data/", h=32, w=160):
-    data, label, _ = get_data(path=path, h=h, w=w)
+    data, label, _ = get_data(path=path, h=h, w=w, is_all=1)
     print(data.shape)
     print(label.shape)
     
     model = build_network(image_height=h, image_width=w)
-#     model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN_1024.hdf5")
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
 
     checkpoint = ModelCheckpoint(filepath='./checkpoint/CNN--{epoch:02d}--{val_loss:.3f}.hdf5',
-                                 monitor='loss', verbose=1, mode='min', period=10)
+                                 monitor='loss', verbose=1, mode='min', period=5)
 
     model.fit(data, label,
               batch_size=256,
@@ -118,13 +118,13 @@ def train(path="data/", h=32, w=160):
 
 
 def predict(path="data/", h=32, w=160):
-    x_test, y_test, name = get_data(path=path, h=h, w=w)
+    x_test, y_test, name = get_data(path=path, h=h, w=w, is_all=0)
 
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
 
     model = build_network(image_height=h, image_width=w)
-#     model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
     scores = model.evaluate(x_test, y_test, verbose=0)
@@ -146,5 +146,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     #     path = "test/"
     #     path = "data_cut/"
-    train(path="test/", h=32, w=160)
+#     train(path="test/", h=32, w=160)
     predict(path='data/', h=32, w=160)
