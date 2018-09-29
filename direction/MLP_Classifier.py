@@ -88,8 +88,8 @@ def predict(path="data/", h=32, w=160):
     for i in range(num):
         if np.argmax(res[i]) == np.argmax(y_test[i]):
             true_num = true_num + 1
-       # else:
-       #     print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
+    # else:
+    #     print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
 
