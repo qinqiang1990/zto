@@ -30,21 +30,27 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
+        if h_ > 400:
+            continue
         for angle in [0, 180]:
 
             if angle == 0:
+                label.append([1, 0])
                 label.append([1, 0])
                 M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
 
             elif angle == 180:
                 label.append([0, 1])
+                label.append([0, 1])
                 M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
 
             temp = cv2.warpAffine(img, M, (w_, h_))
             temp = cv2.equalizeHist(temp)
-            temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
+            # temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
             # data.append(temp.reshape(1, -1)[0, :])
-            data.append(temp[:, :, np.newaxis])
+            data.append(temp[:, :w, np.newaxis])
+            data.append(temp[:, -w:, np.newaxis])
+            name.append(file)
             name.append(file)
 
     data = np.array(data)
@@ -132,7 +138,7 @@ def predict(path="data/", h=32, w=160):
     for i in range(num):
         if np.argmax(res[i]) == np.argmax(y_test[i]):
             true_num = true_num + 1
-        #else:
+        # else:
         #    print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
@@ -140,7 +146,7 @@ def predict(path="data/", h=32, w=160):
 
 
 if __name__ == "__main__":
-#     path = "test/"
-#     path = "data_cut/"
+    #     path = "test/"
+    #     path = "data_cut/"
     train(path="test/", h=32, w=160)
     predict(path='data/', h=32, w=160)
