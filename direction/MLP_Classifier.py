@@ -6,8 +6,9 @@ from sklearn.externals import joblib
 from sklearn.model_selection import train_test_split
 
 
-def get_data(path, h=32, w=160):
-    print("============", path, "===========")
+
+def get_data(path, h=32, w=160, is_all=0):
+    print("==========", path, "==========")
     data = []
     label = []
     name = []
@@ -15,7 +16,7 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
-        if h_ > 400:
+        if is_all==0 and h_ > 400:
             continue
         for angle in [0, 180]:
 
@@ -31,7 +32,7 @@ def get_data(path, h=32, w=160):
             temp = cv2.equalizeHist(temp)
             temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
             data.append(temp.reshape(1, -1)[0, :])
-            # data.append(temp[:, :, np.newaxis])
+#             data.append(temp[:, :, np.newaxis])
             name.append(file)
 
     data = np.array(data)
@@ -41,7 +42,7 @@ def get_data(path, h=32, w=160):
 
 
 def train(path="data/", h=32, w=160):
-    data, label, _ = get_data(path=path, h=h, w=w)
+    data, label, _ = get_data(path=path, h=h, w=w, is_all=1)
 
     x_train, x_test, y_train, y_test = train_test_split(data, label, test_size=0.1)
 
@@ -51,8 +52,8 @@ def train(path="data/", h=32, w=160):
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
 
-    clf = MLPClassifier(hidden_layer_sizes=(500,), learning_rate_init=0.01,
-                        activation="relu", solver='adam', max_iter=200)
+    clf = MLPClassifier(hidden_layer_sizes=(1000,), learning_rate_init=0.01,
+                        activation="relu", solver='adam', max_iter=2000)
     clf.fit(x_train, y_train)
     joblib.dump(clf, "checkpoint/clf.pkl")
 
@@ -77,7 +78,7 @@ def train(path="data/", h=32, w=160):
 
 
 def predict(path="data/", h=32, w=160):
-    x_test, y_test, name = get_data(path=path, h=h, w=w)
+    x_test, y_test, name = get_data(path=path, h=h, w=w, is_all=0)
 
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
@@ -99,5 +100,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    train(path="test/", h=32, w=160)
-    predict(path='data/', h=32, w=160)
+    train(path="data/", h=32, w=160)
+    predict(path='test/', h=32, w=160)

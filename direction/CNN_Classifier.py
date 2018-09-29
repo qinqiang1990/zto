@@ -21,7 +21,7 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
-def get_data(path, h=32, w=160):
+def get_data(path, h=32, w=160, is_all=0):
     print("==========", path, "==========")
     data = []
     label = []
@@ -30,7 +30,7 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
-        if h_ > 400:
+        if is_all==0 and h_ > 400:
             continue
         for angle in [0, 180]:
 
@@ -96,12 +96,16 @@ def build_network(image_height=128, image_width=32):
 
 
 def train(path="data/", h=32, w=160):
-    data, label, _ = get_data(path=path, h=h, w=w)
+    data, label, _ = get_data(path=path, h=h, w=w, is_all=1)
     print(data.shape)
     print(label.shape)
     
     model = build_network(image_height=h, image_width=w)
+<<<<<<< HEAD
     model.load_weights("checkpoint/CNN.hdf5")
+=======
+    model.load_weights("checkpoint/CNN_1024.hdf5")
+>>>>>>> 5ad07b8a96aace4fc4e8fb1761e518a38fc36671
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
@@ -118,7 +122,7 @@ def train(path="data/", h=32, w=160):
 
 
 def predict(path="data/", h=32, w=160):
-    x_test, y_test, name = get_data(path=path, h=h, w=w)
+    x_test, y_test, name = get_data(path=path, h=h, w=w, is_all=0)
 
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
