@@ -97,7 +97,7 @@ def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w)
 
     model = build_network(image_height=h, image_width=w)
-    #model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
@@ -107,7 +107,7 @@ def train(path="data/", h=32, w=160):
 
     model.fit(data, label,
               batch_size=256,
-              epochs=200,
+              epochs=50,
               callbacks=[checkpoint],
               verbose=2,
               validation_split=0.2)
@@ -120,7 +120,7 @@ def predict(path="data/", h=32, w=160):
     print("y_test:", y_test.shape)
 
     model = build_network(image_height=h, image_width=w)
-    #model.load_weights("checkpoint/CNN.hdf5")
+    model.load_weights("checkpoint/CNN.hdf5")
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
     scores = model.evaluate(x_test, y_test, verbose=0)
@@ -142,5 +142,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    train(path="test/", h=32, w=160)
+    train(path="data/", h=32, w=160)
     predict(path='test/', h=32, w=160)
