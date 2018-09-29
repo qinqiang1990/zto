@@ -43,8 +43,8 @@ def get_data(path, h=32, w=160):
             temp = cv2.warpAffine(img, M, (w_, h_))
             temp = cv2.equalizeHist(temp)
             temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
-            data.append(temp.reshape(1, -1)[0, :])
-            # data.append(temp[:, :, np.newaxis])
+            # data.append(temp.reshape(1, -1)[0, :])
+            data.append(temp[:, :, np.newaxis])
             name.append(file)
 
     data = np.array(data)
