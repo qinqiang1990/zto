@@ -15,15 +15,14 @@ def get_data(path, h=32, w=160):
     for file in files:
         img = cv2.imread(path + file, 0)
         img = cv2.equalizeHist(img)
-
         img = cv2.resize(img, (w, h), interpolation=cv2.INTER_AREA)
-        for angle in [0, 180]:
+
+        for angle in [180]:
 
             if angle == 0:
                 label.append([1, 0])
             elif angle == 180:
                 label.append([0, 1])
-
             # 逆时针旋转
             M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
             rotated = cv2.warpAffine(img, M, (w, h))
@@ -86,10 +85,10 @@ def predict(path="data/", h=32, w=160):
     true_num = 0
     num = len(res)
     for i in range(num):
-        if np.sum(res[i] == y_test[i]) == len(y_test[i]):
+        if np.argmax(res[i]) == np.argmax(y_test[i]):
             true_num = true_num + 1
-        else:
-            print(name[i], "true:", y_test[i], "pred:", res[i])
+        print(y_test[i],res[i])
+        print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
 
@@ -97,5 +96,5 @@ def predict(path="data/", h=32, w=160):
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    train(path="data/", h=32, w=160)
-    predict(path='test/', h=32, w=160)
+    #train(path="data/", h=32, w=160)
+    predict(path='test_cut1/', h=32, w=160)
