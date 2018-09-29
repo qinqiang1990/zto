@@ -22,29 +22,29 @@ from keras import backend as K
 
 
 def get_data(path, h=32, w=160):
-    print("==========",path,"==========")
+    print("==========", path, "==========")
     data = []
     label = []
     name = []
     files = os.listdir(path)
     for file in files:
         img = cv2.imread(path + file, 0)
-        img = cv2.equalizeHist(img)
-
-        img = cv2.resize(img, (w, h), interpolation=cv2.INTER_AREA)
+        h_, w_ = img.shape[:2]
         for angle in [0, 180]:
 
             if angle == 0:
                 label.append([1, 0])
+                M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+
             elif angle == 180:
                 label.append([0, 1])
+                M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
 
-            # 逆时针旋转
-            M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
-            rotated = cv2.warpAffine(img, M, (w, h))
-
-            # data.append(rotated.reshape(1, -1)[0, :])
-            data.append(rotated[:, :, np.newaxis])
+            temp = cv2.warpAffine(img, M, (w_, h_))
+            temp = cv2.equalizeHist(temp)
+            temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
+            data.append(temp.reshape(1, -1)[0, :])
+            # data.append(temp[:, :, np.newaxis])
             name.append(file)
 
     data = np.array(data)
@@ -123,7 +123,7 @@ def predict(path="data/", h=32, w=160):
     model.load_weights("checkpoint/CNN.hdf5")
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-    scores = model.evaluate(x_test,y_test,verbose=0)
+    scores = model.evaluate(x_test, y_test, verbose=0)
 
     res = model.predict(x_test)
 
@@ -136,11 +136,11 @@ def predict(path="data/", h=32, w=160):
             print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
-    print("scores:",scores)
+    print("scores:", scores)
 
 
 if __name__ == "__main__":
     # path = "test/"
     # path = "data_cut/"
-    #train(path="data/", h=32, w=160)
+    # train(path="data/", h=32, w=160)
     predict(path='test/', h=32, w=160)
