@@ -101,11 +101,7 @@ def train(path="data/", h=32, w=160):
     print(label.shape)
     
     model = build_network(image_height=h, image_width=w)
-<<<<<<< HEAD
     model.load_weights("checkpoint/CNN.hdf5")
-=======
-    model.load_weights("checkpoint/CNN_1024.hdf5")
->>>>>>> 5ad07b8a96aace4fc4e8fb1761e518a38fc36671
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
