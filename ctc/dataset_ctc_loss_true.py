@@ -10,6 +10,7 @@ from keras.layers import MaxPooling2D, Permute, TimeDistributed, Dropout
 import keras.backend.tensorflow_backend as K
 import os
 import sys
+
 sys.path.append(os.getcwd())
 from config import mod_config
 
@@ -129,17 +130,17 @@ def test_model(model, X_test, Y_test):
     print("Y_test:", Y_test.shape)
 
     y_pred = model.predict(X_test)
-    #shape = y_pred[:, :, :].shape
+    # shape = y_pred[:, :, :].shape
 
-    #ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
-    #out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
-    
-    #accur = np.sum(abs(out - Y_test), axis=1)
-    #accur_score = len(accur[accur == 0]) * 1.0 / len(accur)
-    #print("accur_score:", accur_score)
+    # ctc_decode = K.ctc_decode(y_pred[:, :, :], input_length=np.ones(shape[0]) * shape[1])[0][0]
+    # out = K.get_value(ctc_decode)[:, :MAX_CAPTCHA]
 
+    # accur = np.sum(abs(out - Y_test), axis=1)
+    # accur_score = len(accur[accur == 0]) * 1.0 / len(accur)
+    # print("accur_score:", accur_score)
 
     print(decode_model_output(y_pred) - Y_test)
+
 
 def get_data(path="data/true_image/", equalize=1, label_length=11):
     files = os.listdir(path)
@@ -156,6 +157,14 @@ def get_data(path="data/true_image/", equalize=1, label_length=11):
                 img = cv2.equalizeHist(img)
             data.append(img[:, :, np.newaxis])
             label.append(label_)
+
+            # 旋转180度
+            h_, w_ = img.shape[:2]
+            M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
+            img = cv2.warpAffine(img, M, (w_, h_))
+            data.append(img[:, :, np.newaxis])
+            label.append(label_)
+
     return np.array(data), np.array(label)
 
 
@@ -222,4 +231,4 @@ if __name__ == '__main__':
               verbose=2,
               validation_split=0.2)
 
-   # test_model(model, X_test, Y_test)
+# test_model(model, X_test, Y_test)
