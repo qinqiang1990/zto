@@ -21,7 +21,7 @@ from keras.layers.core import Dense
 from keras import backend as K
 
 
-def get_data(path, h=32, w=160, is_all=0):
+def get_non_numeric(path="non_numeric/", h=32, w=160, is_all=0):
     print("==========", path, "==========")
     data = []
     label = []
@@ -30,16 +30,45 @@ def get_data(path, h=32, w=160, is_all=0):
     for file in files:
         img = cv2.imread(path + file, 0)
         h_, w_ = img.shape[:2]
-        if is_all==0 and h_ > 400:
+        if is_all == 0 and w_ > 400:
             continue
         for angle in [0, 180]:
 
             if angle == 0:
-                label.append([1, 0])
+                label.append([0, 0, 1])
                 M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
 
             elif angle == 180:
-                label.append([0, 1])
+                label.append([0, 0, 1])
+                M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
+
+            temp = cv2.warpAffine(img, M, (w_, h_))
+            temp = cv2.equalizeHist(temp)
+            temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
+            # data.append(temp.reshape(1, -1)[0, :])
+            data.append(temp[:, :, np.newaxis])
+            name.append(file)
+
+    return data, label, name
+
+
+def get_data(path, h=32, w=160, is_all=0):
+    data, label, name = get_non_numeric(h=h, w=w, is_all=1)
+    print("==========", path, "==========")
+    files = os.listdir(path)
+    for file in files:
+        img = cv2.imread(path + file, 0)
+        h_, w_ = img.shape[:2]
+        if is_all == 0 and w_ > 400:
+            continue
+        for angle in [0, 180]:
+
+            if angle == 0:
+                label.append([1, 0, 0])
+                M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+
+            elif angle == 180:
+                label.append([0, 1, 0])
                 M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
 
             temp = cv2.warpAffine(img, M, (w_, h_))
@@ -99,9 +128,16 @@ def train(path="data/", h=32, w=160):
     data, label, _ = get_data(path=path, h=h, w=w, is_all=1)
     print(data.shape)
     print(label.shape)
-    
+
     model = build_network(image_height=h, image_width=w)
     model.load_weights("checkpoint/CNN.hdf5")
+
+    x = model.get_layer('dropout_4').output
+    x = Dense(3)(x)
+    x = Activation("softmax")(x)
+
+    model = Model(inputs=model.get_layer('the_input').output, outputs=x)
+
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     early_stop = EarlyStopping(monitor='loss', min_delta=0.001, patience=4, mode='min', verbose=1)
@@ -136,8 +172,8 @@ def predict(path="data/", h=32, w=160):
     for i in range(num):
         if np.argmax(res[i]) == np.argmax(y_test[i]):
             true_num = true_num + 1
-        # else:
-        #    print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
+        else:
+            print(name[i], "true:", np.argmax(y_test[i]), "pred:", np.argmax(res[i]))
 
     print("Total num:", num, "True num:", true_num, " True Rate:", true_num / float(num))
     print("scores:", scores)
@@ -147,4 +183,4 @@ if __name__ == "__main__":
     #     path = "test/"
     #     path = "data_cut/"
     train(path="test/", h=32, w=160)
-    predict(path='data/', h=32, w=160)
+    # predict(path='test_cut/', h=32, w=160)
