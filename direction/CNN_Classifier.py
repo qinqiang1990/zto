@@ -197,7 +197,7 @@ def predict(path="data/", h=32, w=160):
 
 
 if __name__ == "__main__":
-    #     path = "test/"
-    #     path = "data_cut/"
-    train(path="test/", h=32, w=240)
+    # path = "test/"
+    # path = "data_cut/"
+    # train(path="test/", h=32, w=240)
     predict(path='test_cut/', h=32, w=240)
