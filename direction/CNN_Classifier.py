@@ -167,7 +167,7 @@ def train(path="data/", h=32, w=160):
               epochs=2000,
               callbacks=[checkpoint],
               verbose=2,
-              validation_split=0.2)
+              validation_split=0.3)
 
 
 def predict(path="data/", h=32, w=160):
