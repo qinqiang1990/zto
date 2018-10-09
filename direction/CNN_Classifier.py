@@ -53,30 +53,48 @@ def get_non_numeric(path="non_numeric/", h=32, w=160, is_all=0):
 
 
 def get_data(path, h=32, w=160, is_all=0):
-    data, label, name = get_non_numeric(h=h, w=w, is_all=1)
+    data = []
+    label = []
+    name = []
     print("==========", path, "==========")
-    files = os.listdir(path)
-    for file in files:
-        img = cv2.imread(path + file, 0)
-        h_, w_ = img.shape[:2]
-        if is_all == 0 and w_ > 400:
-            continue
-        for angle in [0, 180]:
+    dirs = os.listdir(path)
+    for dir in dirs:
+        if os.path.isdir(path + dir) and dir in ["0", "0_", "1", "2"]:
+            files = os.listdir(path + dir)
+            for file in files:
+                img = cv2.imread(path + dir + "/" + file, 0)
+                h_, w_ = img.shape[:2]
+                if is_all == 0 and w_ > 400:
+                    continue
+                for angle in [0, 180]:
+                    if angle == 0:
 
-            if angle == 0:
-                label.append([1, 0, 0])
-                M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+                        if dir in ["0", "0_"]:
+                            label.append([1, 0, 0])
+                        elif dir == "1":
+                            label.append([0, 1, 0])
+                        elif dir == "2":
+                            label.append([0, 0, 1])
 
-            elif angle == 180:
-                label.append([0, 1, 0])
-                M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
+                        M = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
 
-            temp = cv2.warpAffine(img, M, (w_, h_))
-            temp = cv2.equalizeHist(temp)
-            temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
-            # data.append(temp.reshape(1, -1)[0, :])
-            data.append(temp[:, :, np.newaxis])
-            name.append(file)
+                    elif angle == 180:
+
+                        if dir in ["0", "0_"]:
+                            label.append([0, 1, 0])
+                        elif dir == "1":
+                            label.append([1, 0, 0])
+                        elif dir == "2":
+                            label.append([0, 0, 1])
+
+                        M = np.array([[-1.0, 0.0, w_ - 1], [0.0, -1.0, h_ - 1]])
+
+                    temp = cv2.warpAffine(img, M, (w_, h_))
+                    temp = cv2.equalizeHist(temp)
+                    temp = cv2.resize(temp, (w, h), interpolation=cv2.INTER_AREA)
+                    # data.append(temp.reshape(1, -1)[0, :])
+                    data.append(temp[:, :, np.newaxis])
+                    name.append(file)
 
     data = np.array(data)
     label = np.array(label)
@@ -155,7 +173,7 @@ def train(path="data/", h=32, w=160):
 
 
 def predict(path="data/", h=32, w=160):
-    x_test, y_test, name = get_data(path=path, h=h, w=w, is_all=0)
+    x_test, y_test, name = get_data(path=path, h=h, w=w, is_all=1)
 
     print("x_test:", x_test.shape)
     print("y_test:", y_test.shape)
@@ -181,7 +199,7 @@ def predict(path="data/", h=32, w=160):
 
 
 if __name__ == "__main__":
-    #     path = "test/"
-    #     path = "data_cut/"
-    train(path="test/", h=32, w=160)
-    # predict(path='test_cut/', h=32, w=160)
+    # path = "test/"
+    # path = "data_cut/"
+    # train(path="test/", h=32, w=240)
+    predict(path='test_cut/', h=32, w=240)
